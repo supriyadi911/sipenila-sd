@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIPENILA SD - Sistem Penilaian Digital</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SheetJS (Excel Export/Import) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1d4ed8',
+                        secondary: '#3b82f6',
+                        light: '#f3f4f6',
+                        white: '#ffffff',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .nav-item.active { background-color: #1e3a8a; border-left: 4px solid #60a5fa; }
+        .nav-item { transition: all 0.3s ease; }
+        .nav-item:hover:not(.active) { background-color: #2563eb; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #ffffff; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .sticky-col { position: sticky; left: 0; background-color: white; z-index: 10; border-right: 2px solid #e5e7eb; }
+
+        /* Custom Shapes for Landing */
+        .blob { position: absolute; width: 500px; height: 500px; background: #3b82f6; filter: blur(80px); opacity: 0.1; border-radius: 50%; z-index: -1; }
+        
+        .hero-image-shadow {
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.25), 0 30px 60px -30px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-light text-gray-800 font-sans h-screen overflow-hidden flex relative">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-blue-900 bg-opacity-80 z-[100] flex flex-col items-center justify-center hidden">
+        <div class="spinner mb-4"></div>
+        <h2 class="text-white text-xl font-bold" id="loading-text">Menyinkronkan Data...</h2>
+    </div>
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="fixed inset-0 bg-white z-[60] overflow-y-auto">
+        <div class="blob top-[-100px] left-[-100px]"></div>
+        <div class="blob bottom-[-100px] right-[-100px] bg-purple-500"></div>
+        
+        <nav class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+            <div class="flex items-center space-x-2 text-primary">
+                <i data-lucide="graduation-cap" class="w-8 h-8"></i>
+                <span class="font-bold text-2xl tracking-tight">SIPENILA SD</span>
+            </div>
+            <button onclick="showLogin()" class="bg-primary hover:bg-blue-800 text-white px-6 py-2 rounded-full font-semibold transition-all shadow-lg shadow-blue-200">
+                Masuk
+            </button>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-6 pt-12 pb-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="fade-in">
+                <span class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider mb-6 inline-block">Versi 2.0 Digital</span>
+                <h1 class="text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+                    Kelola Nilai Siswa <span class="text-primary">Lebih Cerdas & Cepat.</span>
+                </h1>
+                <p class="text-lg text-gray-600 mb-10 leading-relaxed">
+                    SIPENILA SD adalah solusi digital terintegrasi untuk bapak/ibu guru dalam mendokumentasikan, mengolah, dan melaporkan penilaian hasil belajar siswa secara akurat dan transparan.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="showLogin()" class="flex items-center justify-center bg-primary hover:bg-blue-800 text-white text-lg px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-xl shadow-blue-200">
+                        <i data-lucide="log-in" class="mr-2"></i> Masuk ke Sistem
+                    </button>
+                    <div class="flex items-center space-x-4 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50/50">
+                        <div class="flex -space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-[10px] text-white">G1</div>
+                            <div class="w-8 h-8 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-[10px] text-white">G2</div>
+                        </div>
+                        <span class="text-sm font-medium text-gray-500">Digunakan oleh 50+ Guru SD</span>
+                    </div>
+                </div>
+
+                <div class="mt-16 grid grid-cols-3 gap-8 border-t border-gray-100 pt-10">
+                    <div>
+                        <h3 class="font-bold text-gray-900">Otomatis</h3>
+                        <p class="text-sm text-gray-500">Kalkulasi bobot nilai instan.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900">Cloud Sync</h3>
+                        <p class="text-sm text-gray-500">Integrasi Google Sheets.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900">Eksport</h3>
+                        <p class="text-sm text-gray-500">Format Excel siap cetak.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative hidden lg:block fade-in" style="animation-delay: 0.2s;">
+                <!-- Frame Aplikasi/Browser -->
+                <div class="bg-gray-800 rounded-2xl p-1.5 hero-image-shadow transform lg:rotate-2 hover:rotate-0 transition-all duration-700">
+                    <div class="bg-gray-700 h-8 rounded-t-xl flex items-center px-4 space-x-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                        <div class="bg-gray-600 h-4 w-48 rounded ml-4"></div>
+                    </div>
+                    <div class="bg-white rounded-b-xl overflow-hidden aspect-video">
+                        <!-- Update tautan gambar preview dashboard -->
+                        <img src="https://i.imgur.com/I8PlePD.png" alt="Preview Dashboard SIPENILA" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                
+                <!-- Floating Elements -->
+                <div class="absolute -bottom-8 -left-8 bg-white p-5 rounded-2xl shadow-2xl flex items-center space-x-4 border border-gray-100 animate-bounce">
+                    <div class="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Akurasi Data</p>
+                        <p class="font-bold text-lg text-gray-800">100% Digital</p>
+                    </div>
+                </div>
+                
+                <div class="absolute -top-6 -right-6 bg-white p-4 rounded-full shadow-xl border border-gray-100">
+                    <i data-lucide="award" class="w-10 h-10 text-yellow-500"></i>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[70] hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center border border-gray-100 relative fade-in">
+            <button onclick="hideLogin()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="bg-blue-100 text-primary p-4 rounded-full inline-block mb-4">
+                <i data-lucide="graduation-cap" class="w-12 h-12"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Login SIPENILA SD</h1>
+            <p class="text-gray-500 mb-6 text-sm">Masukkan kredensial Anda untuk akses sistem.</p>
+            <form id="login-form" class="space-y-4">
+                <div class="text-left">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">Username</label>
+                    <input type="text" id="username" placeholder="admin" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary mt-1" value="admin">
+                </div>
+                <div class="text-left">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary mt-1" value="admin">
+                </div>
+                <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-200 mt-2">Masuk Ke Aplikasi</button>
+            </form>
+            <p id="login-error" class="text-red-500 text-sm mt-3 hidden">Login Gagal! Cek kembali username/password.</p>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app-container" class="hidden flex h-full w-full">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-primary text-white flex flex-col h-full shadow-xl z-10 flex-shrink-0">
+            <div class="h-16 flex items-center justify-center border-b border-blue-600 px-4">
+                <i data-lucide="book-open" class="mr-2"></i>
+                <span class="font-bold text-lg tracking-wider">SIPENILA SD</span>
+            </div>
+            <div class="overflow-y-auto flex-1 py-4">
+                <ul class="space-y-1">
+                    <li class="px-3 text-xs font-semibold text-blue-300 uppercase mb-2 mt-2">Menu Utama</li>
+                    <li><a href="#" data-target="dashboard" class="nav-item active flex items-center py-3 px-6 text-sm"><i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard</a></li>
+                    <li class="px-3 text-xs font-semibold text-blue-300 uppercase mb-2 mt-4">Data Master</li>
+                    <li><a href="#" data-target="data-siswa" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="users" class="w-5 h-5 mr-3"></i> Data Siswa</a></li>
+                    <li><a href="#" data-target="data-guru" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="user-check" class="w-5 h-5 mr-3"></i> Data Guru</a></li>
+                    <li><a href="#" data-target="data-mapel" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="book-copy" class="w-5 h-5 mr-3"></i> Mata Pelajaran</a></li>
+                    <li class="px-3 text-xs font-semibold text-blue-300 uppercase mb-2 mt-4">Penilaian</li>
+                    <li><a href="#" data-target="nilai-harian" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="edit-3" class="w-5 h-5 mr-3"></i> Nilai Harian</a></li>
+                    <li><a href="#" data-target="nilai-ulangan" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="file-text" class="w-5 h-5 mr-3"></i> Nilai Ulangan</a></li>
+                    <li><a href="#" data-target="nilai-sts" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="bar-chart-2" class="w-5 h-5 mr-3"></i> Nilai STS</a></li>
+                    <li><a href="#" data-target="nilai-sas" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="bar-chart" class="w-5 h-5 mr-3"></i> Nilai SAS</a></li>
+                    <li class="px-3 text-xs font-semibold text-blue-300 uppercase mb-2 mt-4">Laporan</li>
+                    <li><a href="#" data-target="rekap-nilai" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Rekap Per Mapel</a></li>
+                    <li><a href="#" data-target="ledger-nilai" class="nav-item flex items-center py-3 px-6 text-sm"><i data-lucide="table-2" class="w-5 h-5 mr-3"></i> Ledger Kelas</a></li>
+                </ul>
+            </div>
+            <div class="p-4 border-t border-blue-600 text-center text-xs text-blue-300">
+                <i data-lucide="database" class="w-4 h-4 inline mr-1"></i> G-Sheets Connected
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full bg-gray-50 overflow-hidden">
+            <header class="h-16 bg-white shadow-sm border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
+                <div class="text-xl font-semibold text-gray-800" id="header-title">Dashboard</div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="fetchDataFromSheets(true)" class="text-sm bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1.5 rounded-full flex items-center">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-1"></i> Refresh
+                    </button>
+                    <button id="btn-logout" onclick="logout()" class="text-gray-500 hover:text-red-500 flex items-center">
+                        <span class="text-xs font-bold mr-2 uppercase">Keluar</span>
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div id="content-area" class="flex-1 overflow-y-auto p-6 relative">
+                <!-- Local Processing Overlay -->
+                <div id="local-loading" class="absolute inset-0 bg-white/50 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
+                     <div class="spinner !border-blue-500 !border-t-blue-200 mb-2"></div>
+                     <span class="text-blue-700 font-medium text-sm">Memproses...</span>
+                </div>
+
+                <!-- VIEW: Dashboard -->
+                <div id="view-dashboard" class="view-section fade-in">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-8 opacity-5">
+                            <i data-lucide="graduation-cap" class="w-48 h-48"></i>
+                        </div>
+                        <div class="relative z-10 max-w-3xl">
+                            <h1 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Selamat Datang di Panel Admin</h1>
+                            <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                                Anda telah masuk ke Sistem Informasi Penilaian Sekolah Dasar. Silakan pilih menu di samping kiri untuk mengelola data siswa atau mulai melakukan penginputan nilai.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-blue-100 p-2 rounded-lg text-blue-600"><i data-lucide="cloud" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-sm">Sinkronisasi Cloud</h4>
+                                        <p class="text-xs text-gray-500">Data tersimpan otomatis di Google Sheets.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-green-100 p-2 rounded-lg text-green-600"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-sm">Keamanan Data</h4>
+                                        <p class="text-xs text-gray-500">Akses terbatas hanya untuk admin dan guru.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistik Utama -->
+                    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 mr-2 text-primary"></i> Statistik Sistem
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm border p-5 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mr-3"><i data-lucide="users" class="w-5 h-5"></i></div>
+                            <div><h3 class="text-xs text-gray-500">Siswa</h3><p class="text-xl font-bold" id="stat-siswa">0</p></div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border p-5 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center mr-3"><i data-lucide="home" class="w-5 h-5"></i></div>
+                            <div><h3 class="text-xs text-gray-500">Kelas</h3><p class="text-xl font-bold" id="stat-kelas">0</p></div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border p-5 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mr-3"><i data-lucide="book-open" class="w-5 h-5"></i></div>
+                            <div><h3 class="text-xs text-gray-500">Mapel</h3><p class="text-xl font-bold" id="stat-mapel">0</p></div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border p-5 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center mr-3"><i data-lucide="user-check" class="w-5 h-5"></i></div>
+                            <div><h3 class="text-xs text-gray-500">Guru</h3><p class="text-xl font-bold" id="stat-guru">0</p></div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border p-5 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center mr-3"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+                            <div><h3 class="text-xs text-gray-500">Entri Nilai</h3><p class="text-xl font-bold" id="stat-nilai">0</p></div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border p-5 flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center mr-3"><i data-lucide="database" class="w-5 h-5"></i></div>
+                            <div><h3 class="text-xs text-gray-500">Status DB</h3><p class="text-sm font-bold text-green-600">Aktif</p></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
+                        <i data-lucide="check-circle-2" class="w-12 h-12 text-blue-500 mx-auto mb-2"></i>
+                        <h2 class="text-lg font-bold">Sinkronisasi Terakhir</h2>
+                        <p class="text-gray-600 text-sm" id="stat-last-sync">Belum tersinkronisasi</p>
+                    </div>
+                </div>
+
+                <!-- VIEW: Data Umum (Siswa/Guru/Mapel) -->
+                <div id="view-datatable" class="view-section hidden fade-in h-full flex flex-col">
+                    <div class="flex flex-wrap gap-4 justify-between items-center mb-4">
+                        <div class="flex space-x-2 flex-1 max-w-md">
+                            <input type="text" id="dt-search" placeholder="Cari..." class="px-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm">
+                            <select id="dt-filter" class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none hidden"></select>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="btn-add-data" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Tambah</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50" id="dt-thead"></thead>
+                            <tbody class="bg-white divide-y divide-gray-200 text-sm" id="dt-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW: Penilaian -->
+                <div id="view-nilai" class="view-section hidden fade-in h-full flex flex-col">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
+                        <div><label class="block text-xs font-bold mb-1">Kelas</label><select id="nilai-filter-kelas" class="w-full border rounded px-3 py-2 text-sm outline-none"></select></div>
+                        <div><label class="block text-xs font-bold mb-1">Mata Pelajaran</label><select id="nilai-filter-mapel" class="w-full border rounded px-3 py-2 text-sm outline-none"></select></div>
+                        <div><label class="block text-xs font-bold mb-1">Semester</label><select id="nilai-filter-semester" class="w-full border rounded px-3 py-2 text-sm outline-none"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select></div>
+                        <div id="nilai-extra-filter-container"><label class="block text-xs font-bold mb-1" id="nilai-extra-label">Ke-</label><input type="number" id="nilai-filter-ke" min="1" value="1" class="w-full border rounded px-3 py-2 text-sm outline-none"></div>
+                        <button id="btn-load-nilai" class="bg-primary text-white py-2 rounded text-sm font-bold">Tampilkan</button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
+                        <div class="bg-blue-50 px-4 py-3 flex justify-between items-center border-b">
+                            <h4 class="font-bold text-primary text-sm">Input Nilai</h4>
+                            <div id="nilai-actions" class="flex space-x-2 hidden">
+                                <button id="btn-save-nilai" class="bg-primary text-white px-3 py-1.5 rounded text-xs">Simpan Nilai</button>
+                            </div>
+                        </div>
+                        <div class="overflow-y-auto flex-1">
+                            <table class="min-w-full divide-y">
+                                <thead class="bg-gray-50 text-xs font-bold uppercase text-gray-500">
+                                    <tr><th class="px-6 py-3 text-left">No</th><th class="px-6 py-3 text-left">Nama</th><th class="px-6 py-3 text-center">Nilai</th></tr>
+                                </thead>
+                                <tbody id="nilai-tbody" class="divide-y text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: Rekap Laporan -->
+                <div id="view-rekap" class="view-section hidden fade-in h-full flex flex-col">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div><label class="block text-xs font-bold mb-1">Kelas</label><select id="rekap-filter-kelas" class="w-full border rounded px-3 py-2 text-sm"></select></div>
+                        <div><label class="block text-xs font-bold mb-1">Mapel</label><select id="rekap-filter-mapel" class="w-full border rounded px-3 py-2 text-sm"></select></div>
+                        <div><label class="block text-xs font-bold mb-1">Semester</label><select id="rekap-filter-semester" class="w-full border rounded px-3 py-2 text-sm"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select></div>
+                        <button id="btn-load-rekap" class="bg-primary text-white py-2 rounded text-sm font-bold flex items-center justify-center"><i data-lucide="calculator" class="w-4 h-4 mr-2"></i> Proses Rekap</button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
+                        <div class="overflow-x-auto flex-1">
+                            <table class="min-w-full divide-y" id="table-rekap">
+                                <thead class="bg-primary text-white text-[10px] uppercase">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Siswa</th>
+                                        <th class="px-4 py-3 text-center">Harian</th>
+                                        <th class="px-4 py-3 text-center">Ulangan</th>
+                                        <th class="px-4 py-3 text-center">STS</th>
+                                        <th class="px-4 py-3 text-center">SAS</th>
+                                        <th class="px-4 py-3 text-center bg-blue-800">Akhir</th>
+                                        <th class="px-4 py-3 text-center bg-blue-800">Ket</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rekap-tbody" class="divide-y text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: Ledger -->
+                <div id="view-ledger" class="view-section hidden fade-in h-full flex flex-col">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 flex flex-wrap gap-4 items-end">
+                        <div class="w-40"><label class="block text-xs font-bold mb-1">Kelas</label><select id="ledger-filter-kelas" class="w-full border rounded px-3 py-2 text-sm"></select></div>
+                        <div class="w-40"><label class="block text-xs font-bold mb-1">Semester</label><select id="ledger-filter-semester" class="w-full border rounded px-3 py-2 text-sm"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select></div>
+                        <button id="btn-load-ledger" class="bg-primary text-white py-2 px-6 rounded text-sm font-bold flex items-center"><i data-lucide="layers" class="w-4 h-4 mr-2"></i> Tampilkan Ledger</button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
+                        <div class="overflow-auto flex-1">
+                            <table class="min-w-full divide-y border-collapse" id="table-ledger">
+                                <thead class="bg-gray-800 text-white text-[10px] uppercase sticky top-0 z-20" id="ledger-thead"></thead>
+                                <tbody id="ledger-tbody" class="divide-y text-[11px]">
+                                    <tr><td class="p-8 text-center text-gray-400 italic">Pilih kelas dan klik Tampilkan Ledger.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Database & States
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxkGBwx1MRd2iioe7-XUnm2_F1rxZbv1fmGqf4ojagVLHieHQn-__IBbJQFn1ZbjkII/exec';
+        let db = { siswa: [], guru: [], mapel: [], kelas: [], nilai: {} };
+        let currentView = 'dashboard';
+        let currentTable = '';
+        let currentPenilaianType = '';
+
+        // UI Helpers
+        function showLogin() { 
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+        function hideLogin() { 
+            document.getElementById('login-screen').classList.add('hidden');
+        }
+        function showLoading(t) { document.getElementById('loading-text').textContent = t; document.getElementById('loading-overlay').classList.remove('hidden'); }
+        function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
+        function showProcessing() { document.getElementById('local-loading').classList.remove('hidden'); }
+        function hideProcessing() { document.getElementById('local-loading').classList.add('hidden'); }
+
+        // Auth Logic
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(document.getElementById('username').value === 'admin') {
+                hideLogin();
+                document.getElementById('landing-page').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                await fetchDataFromSheets();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        });
+
+        function logout() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('landing-page').classList.remove('hidden');
+        }
+
+        // Fetch Data
+        async function fetchDataFromSheets(isRefresh = false) {
+            showLoading("Mengambil Data...");
+            try {
+                const response = await fetch(GAS_URL);
+                db = await response.json();
+                if(!db.kelas || db.kelas.length === 0) db.kelas = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];
+                document.getElementById('stat-last-sync').textContent = "Terakhir disinkronisasi: " + new Date().toLocaleString('id-ID');
+                hideLoading();
+                renderDashboard();
+                if(isRefresh) switchView(currentView);
+            } catch (e) {
+                console.error(e); hideLoading();
+                alert("Gagal koneksi ke spreadsheet.");
+            }
+        }
+
+        async function saveToSheets() {
+            try {
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(db),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // Routing
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(i => i.addEventListener('click', (e) => {
+            navItems.forEach(n => n.classList.remove('active'));
+            i.classList.add('active');
+            switchView(i.getAttribute('data-target'));
+        }));
+
+        function switchView(target) {
+            currentView = target;
+            document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
+            
+            if(target === 'dashboard') {
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                document.getElementById('header-title').textContent = "Dashboard";
+                renderDashboard();
+            } else if(target.startsWith('data-')) {
+                currentTable = target.split('-')[1];
+                document.getElementById('view-datatable').classList.remove('hidden');
+                document.getElementById('header-title').textContent = "Data Master";
+                setupDataTable();
+            } else if(target.startsWith('nilai-')) {
+                currentPenilaianType = target.split('-')[1];
+                document.getElementById('view-nilai').classList.remove('hidden');
+                document.getElementById('header-title').textContent = "Input Nilai";
+                setupNilaiFilter();
+            } else if(target === 'rekap-nilai') {
+                document.getElementById('view-rekap').classList.remove('hidden');
+                document.getElementById('header-title').textContent = "Laporan Per Mapel";
+                setupRekapFilter();
+            } else if(target === 'ledger-nilai') {
+                document.getElementById('view-ledger').classList.remove('hidden');
+                document.getElementById('header-title').textContent = "Ledger Nilai Kelas";
+                setupLedgerFilter();
+            }
+            lucide.createIcons();
+        }
+
+        // Dashboard Stat
+        function renderDashboard() {
+            document.getElementById('stat-siswa').textContent = db.siswa.length;
+            document.getElementById('stat-kelas').textContent = db.kelas.length;
+            document.getElementById('stat-mapel').textContent = db.mapel.length;
+            document.getElementById('stat-guru').textContent = db.guru.length;
+            document.getElementById('stat-nilai').textContent = Object.keys(db.nilai).length;
+            lucide.createIcons();
+        }
+
+        // Penilaian Logic
+        function setupNilaiFilter() {
+            document.getElementById('nilai-filter-kelas').innerHTML = db.kelas.map(k => `<option value="${k}">${k}</option>`).join('');
+            document.getElementById('nilai-filter-mapel').innerHTML = db.mapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
+        }
+
+        document.getElementById('btn-load-nilai').addEventListener('click', () => {
+            const kls = document.getElementById('nilai-filter-kelas').value;
+            const mid = document.getElementById('nilai-filter-mapel').value;
+            const sem = document.getElementById('nilai-filter-semester').value;
+            const ke = document.getElementById('nilai-filter-ke').value || 1;
+            
+            let siswa = db.siswa.filter(s => s.kelas === kls);
+            let b = '';
+            siswa.forEach((s, idx) => {
+                let suffix = (currentPenilaianType==='sts'||currentPenilaianType==='sas') ? '1' : ke;
+                let key = `${s.id}_${mid}_${currentPenilaianType}_${sem}_${suffix}`;
+                let val = db.nilai[key] || '';
+                b += `<tr><td class="px-6 py-3">${idx+1}</td><td class="px-6 py-3 font-bold">${s.nama}</td><td class="px-6 py-3 text-center"><input type="number" class="val-nilai w-20 border rounded text-center py-1" data-key="${key}" value="${val}"></td></tr>`;
+            });
+            document.getElementById('nilai-tbody').innerHTML = b || '<tr><td colspan="3" class="p-4 text-center">Data Kosong</td></tr>';
+            document.getElementById('nilai-actions').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-save-nilai').addEventListener('click', async () => {
+            showProcessing();
+            document.querySelectorAll('.val-nilai').forEach(i => {
+                if(i.value === '') delete db.nilai[i.dataset.key];
+                else db.nilai[i.dataset.key] = Number(i.value);
+            });
+            await saveToSheets();
+            hideProcessing();
+            alert("Data tersimpan!");
+        });
+
+        // DataTable, Rekap, Ledger helpers
+        function setupDataTable() { 
+            const f = document.getElementById('dt-filter');
+            if(currentTable === 'siswa') { f.classList.remove('hidden'); f.innerHTML = '<option value="">Semua Kelas</option>' + db.kelas.map(k => `<option value="${k}">${k}</option>`).join(''); } 
+            else f.classList.add('hidden');
+        }
+        function setupRekapFilter() { document.getElementById('rekap-filter-kelas').innerHTML = db.kelas.map(k => `<option value="${k}">${k}</option>`).join(''); document.getElementById('rekap-filter-mapel').innerHTML = db.mapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join(''); }
+        function setupLedgerFilter() { document.getElementById('ledger-filter-kelas').innerHTML = db.kelas.map(k => `<option value="${k}">${k}</option>`).join(''); }
+
+    </script>
+</body>
+</html>
