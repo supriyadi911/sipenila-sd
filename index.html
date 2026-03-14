@@ -47,6 +47,10 @@
         .sticky-col { position: sticky; left: 0; background-color: white; z-index: 10; border-right: 2px solid #e5e7eb; }
 
         .blob { position: absolute; width: 500px; height: 500px; background: #3b82f6; filter: blur(80px); opacity: 0.1; border-radius: 50%; z-index: -1; }
+        
+        /* Fix for input number arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="bg-light text-gray-800 font-sans h-screen overflow-hidden flex relative">
@@ -63,11 +67,11 @@
             <div class="text-red-500 mb-4 flex justify-center">
                 <i data-lucide="alert-triangle" class="w-16 h-16"></i>
             </div>
-            <h3 class="text-xl font-bold text-center mb-2">Konfirmasi Hapus</h3>
-            <p id="confirm-message" class="text-gray-600 text-center mb-6">Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.</p>
+            <h3 class="text-xl font-bold text-center mb-2">Konfirmasi</h3>
+            <p id="confirm-message" class="text-gray-600 text-center mb-6">Apakah Anda yakin melakukan tindakan ini?</p>
             <div class="flex space-x-3">
                 <button onclick="closeConfirm()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl font-semibold hover:bg-gray-50">Batal</button>
-                <button id="confirm-delete-btn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 shadow-lg shadow-red-200">Hapus</button>
+                <button id="confirm-delete-btn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 shadow-lg shadow-red-200">Lanjutkan</button>
             </div>
         </div>
     </div>
@@ -126,7 +130,6 @@
             </div>
         </main>
         
-        <!-- Minimalist Footer for Landing Page -->
         <footer class="w-full py-6 border-t border-gray-100 text-center text-gray-400 text-xs mt-auto">
             <p>Created by : <span class="font-semibold text-gray-600">Supriyadi, S. Pd. Gr</span> - SDN 1 Durian Payung</p>
         </footer>
@@ -269,16 +272,18 @@
                             <select id="dt-filter" class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none hidden"></select>
                         </div>
                         <div class="flex space-x-2">
+                            <button id="btn-delete-selected" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 hidden items-center transition-all" onclick="confirmBulkDeleteMaster()"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Hapus Terpilih</button>
                             <button id="btn-dt-template" onclick="downloadMasterTemplate()" class="bg-white border px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50"><i data-lucide="download" class="w-4 h-4 inline mr-2"></i> Template</button>
                             <input type="file" id="dt-import-file" accept=".xlsx, .xls" class="hidden" onchange="importMasterData(event)">
                             <label for="dt-import-file" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-green-700 flex items-center"><i data-lucide="upload" class="w-4 h-4 mr-2"></i> Import</label>
                             <button id="btn-add-data" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Tambah</button>
+                            <button onclick="saveMasterData()" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 flex items-center"><i data-lucide="save" class="w-4 h-4 mr-2"></i> Simpan Ke Sheet</button>
                         </div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1">
-                        <div class="overflow-x-auto">
+                    <div class="bg-white rounded-xl shadow-sm border flex-1 flex flex-col overflow-hidden">
+                        <div class="overflow-auto flex-1 relative">
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50" id="dt-thead"></thead>
+                                <thead class="bg-gray-50 sticky top-0 z-20 shadow-sm" id="dt-thead"></thead>
                                 <tbody class="bg-white divide-y divide-gray-200 text-sm" id="dt-tbody"></tbody>
                             </table>
                         </div>
@@ -287,13 +292,36 @@
 
                 <!-- VIEW: Input Nilai -->
                 <div id="view-nilai" class="view-section hidden fade-in h-full flex flex-col">
-                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
-                        <div><label class="block text-xs font-bold mb-1">Kelas</label><select id="nilai-filter-kelas" class="w-full border rounded px-3 py-2 text-sm outline-none"></select></div>
-                        <div><label class="block text-xs font-bold mb-1">Mata Pelajaran</label><select id="nilai-filter-mapel" class="w-full border rounded px-3 py-2 text-sm outline-none"></select></div>
-                        <div><label class="block text-xs font-bold mb-1">Semester</label><select id="nilai-filter-semester" class="w-full border rounded px-3 py-2 text-sm outline-none"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select></div>
-                        <div id="nilai-extra-filter-container"><label class="block text-xs font-bold mb-1" id="nilai-extra-label">Ke-</label><input type="number" id="nilai-filter-ke" min="1" value="1" class="w-full border rounded px-3 py-2 text-sm outline-none"></div>
-                        <button id="btn-load-nilai" class="bg-primary text-white py-2 rounded text-sm font-bold">Tampilkan</button>
+                    <!-- Penambahan Filter Guru disini -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 flex flex-wrap gap-4 items-end">
+                        <div class="flex-1 min-w-[160px]">
+                            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Pilih Guru</label>
+                            <select id="nilai-filter-guru" class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all bg-gray-50" onchange="handleGuruSelection()"></select>
+                        </div>
+                        <div class="flex-1 min-w-[100px]">
+                            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Kelas</label>
+                            <select id="nilai-filter-kelas" class="w-full border rounded-lg px-3 py-2 text-sm outline-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-100 transition-all" onchange="autoLoadNilai()"></select>
+                        </div>
+                        <div class="flex-1 min-w-[160px]">
+                            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Mata Pelajaran</label>
+                            <select id="nilai-filter-mapel" class="w-full border rounded-lg px-3 py-2 text-sm outline-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-100 transition-all" onchange="autoLoadNilai()"></select>
+                        </div>
+                        <div class="flex-1 min-w-[120px]">
+                            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Semester</label>
+                            <select id="nilai-filter-semester" class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" onchange="autoLoadNilai()">
+                                <option value="Ganjil">Ganjil</option>
+                                <option value="Genap">Genap</option>
+                            </select>
+                        </div>
+                        <div id="nilai-extra-filter-container" class="w-24">
+                            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase" id="nilai-extra-label">Kolom</label>
+                            <input type="number" id="nilai-filter-ke" min="1" max="15" value="5" class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" onchange="autoLoadNilai()">
+                        </div>
+                        <button id="btn-load-nilai" class="bg-primary text-white py-2 px-6 rounded-lg text-sm font-bold shadow hover:bg-blue-800 h-[38px] flex items-center justify-center whitespace-nowrap">
+                            <i data-lucide="search" class="w-4 h-4 mr-2"></i> Tampilkan
+                        </button>
                     </div>
+                    
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
                         <div class="bg-blue-50 px-4 py-3 flex justify-between items-center border-b">
                             <h4 class="font-bold text-primary text-sm uppercase tracking-wider flex items-center">
@@ -301,7 +329,7 @@
                             </h4>
                             <div id="nilai-actions" class="flex space-x-2 hidden">
                                 <button onclick="confirmBulkDeleteNilai()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded text-xs hover:bg-red-100 flex items-center">
-                                    <i data-lucide="trash-2" class="w-3.5 h-3.5 mr-1.5"></i> Kosongkan
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5 mr-1.5"></i> Bersihkan Semua
                                 </button>
                                 <button onclick="downloadNilaiTemplate()" class="bg-white border px-3 py-1.5 rounded text-xs hover:bg-gray-50 flex items-center">
                                     <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Template
@@ -310,15 +338,17 @@
                                 <label for="nilai-import-file" class="bg-green-600 text-white px-3 py-1.5 rounded text-xs cursor-pointer flex items-center hover:bg-green-700">
                                     <i data-lucide="upload" class="w-3.5 h-3.5 mr-1.5"></i> Import
                                 </label>
-                                <button id="btn-save-nilai" class="bg-primary text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-800">SIMPAN DATA</button>
+                                <button id="btn-save-nilai" class="bg-primary text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-800 shadow-sm">SIMPAN DATA</button>
                             </div>
                         </div>
-                        <div class="overflow-y-auto flex-1">
+                        <div class="overflow-auto flex-1 relative">
                             <table class="min-w-full divide-y">
-                                <thead class="bg-gray-50 text-xs font-bold uppercase text-gray-500">
-                                    <tr><th class="px-6 py-3 text-left">No</th><th class="px-6 py-3 text-left">Nama</th><th class="px-6 py-3 text-center">Nilai</th><th class="px-6 py-3 text-right">Aksi</th></tr>
+                                <thead class="bg-gray-50 text-xs font-bold uppercase text-gray-500 sticky top-0 z-20" id="nilai-thead">
+                                    <!-- Dynamic Table Header -->
                                 </thead>
-                                <tbody id="nilai-tbody" class="divide-y text-sm"></tbody>
+                                <tbody id="nilai-tbody" class="divide-y text-sm">
+                                    <tr><td colspan="10" class="p-8 text-center text-gray-400">Silakan atur filter dan klik "Tampilkan".</td></tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -330,7 +360,7 @@
                         <div><label class="block text-xs font-bold mb-1">Kelas</label><select id="rekap-filter-kelas" class="w-full border rounded px-3 py-2 text-sm"></select></div>
                         <div><label class="block text-xs font-bold mb-1">Mapel</label><select id="rekap-filter-mapel" class="w-full border rounded px-3 py-2 text-sm"></select></div>
                         <div><label class="block text-xs font-bold mb-1">Semester</label><select id="rekap-filter-semester" class="w-full border rounded px-3 py-2 text-sm"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select></div>
-                        <button id="btn-load-rekap" class="bg-primary text-white py-2 rounded text-sm font-bold flex items-center justify-center"><i data-lucide="calculator" class="w-4 h-4 mr-2"></i> Proses Rekap</button>
+                        <button id="btn-load-rekap" class="bg-primary text-white py-2 rounded text-sm font-bold flex items-center justify-center hover:bg-blue-800"><i data-lucide="calculator" class="w-4 h-4 mr-2"></i> Proses Rekap</button>
                     </div>
 
                     <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl mb-4">
@@ -344,9 +374,9 @@
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
-                        <div class="overflow-x-auto flex-1">
+                        <div class="overflow-x-auto flex-1 relative">
                             <table class="min-w-full divide-y" id="table-rekap">
-                                <thead class="bg-primary text-white text-[10px] uppercase">
+                                <thead class="bg-primary text-white text-[10px] uppercase sticky top-0">
                                     <tr>
                                         <th class="px-4 py-3 text-left">Siswa</th>
                                         <th class="px-4 py-3 text-center" id="col-head-harian">Harian</th>
@@ -367,11 +397,11 @@
                     <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 flex flex-wrap gap-4 items-end">
                         <div class="w-40"><label class="block text-xs font-bold mb-1">Kelas</label><select id="ledger-filter-kelas" class="w-full border rounded px-3 py-2 text-sm"></select></div>
                         <div class="w-40"><label class="block text-xs font-bold mb-1">Semester</label><select id="ledger-filter-semester" class="w-full border rounded px-3 py-2 text-sm"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select></div>
-                        <button id="btn-load-ledger" class="bg-primary text-white py-2 px-6 rounded text-sm font-bold flex items-center"><i data-lucide="layers" class="w-4 h-4 mr-2"></i> Tampilkan Ledger</button>
+                        <button id="btn-load-ledger" class="bg-primary text-white py-2 px-6 rounded text-sm font-bold flex items-center hover:bg-blue-800"><i data-lucide="layers" class="w-4 h-4 mr-2"></i> Tampilkan Ledger</button>
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
-                        <div class="overflow-auto flex-1">
+                        <div class="overflow-auto flex-1 relative">
                             <table class="min-w-full divide-y border-collapse" id="table-ledger">
                                 <thead class="bg-gray-800 text-white text-[10px] uppercase sticky top-0 z-20" id="ledger-thead"></thead>
                                 <tbody id="ledger-tbody" class="divide-y text-[11px]">
@@ -387,7 +417,6 @@
 
             </div>
             
-            <!-- Minimalist Footer for App Content -->
             <footer class="h-8 bg-white border-t border-gray-100 flex items-center justify-center px-6 flex-shrink-0 text-[10px] text-gray-400">
                 <p>Created by : <span class="font-medium text-gray-600">Supriyadi, S. Pd. Gr</span> - SDN 1 Durian Payung</p>
             </footer>
@@ -396,12 +425,12 @@
 
     <!-- MODAL CRUD -->
     <div id="modal-form" class="fixed inset-0 bg-black/50 z-[80] flex items-center justify-center hidden">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 overflow-hidden fade-in">
             <h3 class="text-lg font-bold mb-4" id="modal-title">Form Data</h3>
             <div id="modal-body" class="space-y-4"></div>
             <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeModal()" class="px-4 py-2 border rounded">Batal</button>
-                <button id="btn-save-modal" class="px-4 py-2 bg-primary text-white rounded font-bold">Simpan</button>
+                <button onclick="closeModal()" class="px-4 py-2 border rounded hover:bg-gray-50">Batal</button>
+                <button id="btn-save-modal" class="px-4 py-2 bg-primary hover:bg-blue-800 text-white rounded font-bold">Simpan</button>
             </div>
         </div>
     </div>
@@ -410,12 +439,13 @@
         lucide.createIcons();
 
         // Database & States
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxkGBwx1MRd2iioe7-XUnm2_F1rxZbv1fmGqf4ojagVLHieHQn-__IBbJQFn1ZbjkII/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbykvtqAx8FBeVNNtwSqb4fsDlexat66W2e0vXvHTIbXav9WEYDFQSkvhgY8hEpH-BBr/exec';
         let db = { siswa: [], guru: [], mapel: [], kelas: [], nilai: {} };
         let currentView = 'dashboard';
         let currentTable = '';
         let currentPenilaianType = '';
         let pendingDeleteAction = null;
+        let currentEditId = null;
 
         // UI Helpers
         function showLogin() { document.getElementById('login-screen').classList.remove('hidden'); }
@@ -449,7 +479,7 @@
                 hideLoading();
                 if(isRefresh || currentView === 'dashboard') renderDashboard();
                 if(isRefresh) switchView(currentView);
-            } catch (e) { console.error(e); hideLoading(); alert("Gagal koneksi ke cloud."); }
+            } catch (e) { console.error(e); hideLoading(); alert("Gagal koneksi ke cloud. Menggunakan data lokal sementara jika ada."); }
         }
 
         async function saveToSheets() {
@@ -507,8 +537,9 @@
                 currentPenilaianType = target.split('-')[1];
                 document.getElementById('view-nilai').classList.remove('hidden');
                 document.getElementById('header-title').textContent = `Penilaian ${currentPenilaianType.toUpperCase()}`;
-                setupNilaiFilter();
-                document.getElementById('nilai-tbody').innerHTML = '';
+                setupNilaiFilter(); // Re-initialize dropdowns and their locked states
+                document.getElementById('nilai-tbody').innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-400">Silakan atur filter dan klik "Tampilkan".</td></tr>';
+                document.getElementById('nilai-thead').innerHTML = '';
                 document.getElementById('nilai-actions').classList.add('hidden');
             } else if(target === 'rekap-nilai') {
                 document.getElementById('view-rekap').classList.remove('hidden');
@@ -530,7 +561,7 @@
             lucide.createIcons(); 
         }
 
-        // Master Data Logic
+        // --- MASTER DATA LOGIC ---
         function setupDataTable() {
             const f = document.getElementById('dt-filter');
             if(currentTable === 'siswa') {
@@ -545,85 +576,470 @@
             let h = '', b = '';
             let data = db[currentTable] || [];
 
+            // Sembunyikan tombol hapus massal saat render ulang / ganti tab
+            const btnDeleteSelected = document.getElementById('btn-delete-selected');
+            if (btnDeleteSelected) {
+                btnDeleteSelected.classList.add('hidden');
+                btnDeleteSelected.classList.remove('flex');
+            }
+
             if(currentTable === 'siswa') {
-                h = `<tr><th class="px-6 py-3 text-left">NISN</th><th class="px-6 py-3 text-left">Nama</th><th class="px-6 py-3 text-left">Kelas</th><th class="px-6 py-3 text-right">Aksi</th></tr>`;
+                h = `<tr><th class="px-6 py-3 text-left w-12"><input type="checkbox" id="dt-select-all" class="w-4 h-4 rounded border-gray-300 text-primary cursor-pointer" onchange="toggleSelectAll(this)"></th><th class="px-6 py-3 text-left">NISN</th><th class="px-6 py-3 text-left">Nama</th><th class="px-6 py-3 text-center">L/P</th><th class="px-6 py-3 text-left">Kelas</th><th class="px-6 py-3 text-right">Aksi</th></tr>`;
                 data.filter(s => (s.nama.toLowerCase().includes(search) || s.nisn.includes(search)) && (!filterClass || s.kelas === filterClass)).forEach(s => {
-                    b += `<tr><td class="px-6 py-4">${s.nisn}</td><td class="px-6 py-4 font-bold text-gray-900">${s.nama}</td><td class="px-6 py-4">${s.kelas}</td>
+                    b += `<tr class="hover:bg-gray-50 transition-colors"><td class="px-6 py-4"><input type="checkbox" class="dt-checkbox w-4 h-4 rounded border-gray-300 text-primary cursor-pointer" value="${s.id}" onchange="toggleBulkDeleteBtn()"></td><td class="px-6 py-4">${s.nisn}</td><td class="px-6 py-4 font-bold text-gray-900">${s.nama}</td><td class="px-6 py-4 text-center font-medium">${s.jk || '-'}</td><td class="px-6 py-4">${s.kelas}</td>
                     <td class="px-6 py-4 text-right space-x-3">
                         <button onclick="editMaster('${s.id}')" class="text-blue-600 hover:text-blue-800"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                         <button onclick="confirmDeleteMaster('${currentTable}', '${s.id}')" class="text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td></tr>`;
                 });
             } else if(currentTable === 'guru') {
-                h = `<tr><th class="px-6 py-3 text-left">ID Guru</th><th class="px-6 py-3 text-left">Nama Guru</th><th class="px-6 py-3 text-right">Aksi</th></tr>`;
+                h = `<tr><th class="px-6 py-3 text-left w-12"><input type="checkbox" id="dt-select-all" class="w-4 h-4 rounded border-gray-300 text-primary cursor-pointer" onchange="toggleSelectAll(this)"></th><th class="px-6 py-3 text-left">ID Guru</th><th class="px-6 py-3 text-left">NIP</th><th class="px-6 py-3 text-left">Nama Guru</th><th class="px-6 py-3 text-left">Jabatan</th><th class="px-6 py-3 text-left">Tugas</th><th class="px-6 py-3 text-right">Aksi</th></tr>`;
                 data.filter(g => g.nama.toLowerCase().includes(search)).forEach(g => {
-                    b += `<tr><td class="px-6 py-4 text-gray-500 font-mono text-xs">${g.id}</td><td class="px-6 py-4 font-bold text-gray-900">${g.nama}</td>
+                    b += `<tr class="hover:bg-gray-50 transition-colors"><td class="px-6 py-4"><input type="checkbox" class="dt-checkbox w-4 h-4 rounded border-gray-300 text-primary cursor-pointer" value="${g.id}" onchange="toggleBulkDeleteBtn()"></td><td class="px-6 py-4 text-gray-500 font-mono text-xs">${g.id}</td><td class="px-6 py-4">${g.nip || '-'}</td><td class="px-6 py-4 font-bold text-gray-900">${g.nama}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-gray-100 rounded text-xs">${g.jabatan || '-'}</span></td><td class="px-6 py-4 text-sm">${g.tugas || '-'}</td>
                     <td class="px-6 py-4 text-right space-x-3">
                         <button onclick="editMaster('${g.id}')" class="text-blue-600 hover:text-blue-800"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                         <button onclick="confirmDeleteMaster('${currentTable}', '${g.id}')" class="text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td></tr>`;
                 });
             } else if(currentTable === 'mapel') {
-                h = `<tr><th class="px-6 py-3 text-left">Kode</th><th class="px-6 py-3 text-left">Mata Pelajaran</th><th class="px-6 py-3 text-right">Aksi</th></tr>`;
+                h = `<tr><th class="px-6 py-3 text-left w-12"><input type="checkbox" id="dt-select-all" class="w-4 h-4 rounded border-gray-300 text-primary cursor-pointer" onchange="toggleSelectAll(this)"></th><th class="px-6 py-3 text-left">Kode</th><th class="px-6 py-3 text-left">Mata Pelajaran</th><th class="px-6 py-3 text-right">Aksi</th></tr>`;
                 data.filter(m => m.nama.toLowerCase().includes(search)).forEach(m => {
-                    b += `<tr><td class="px-6 py-4 text-gray-500 font-mono text-xs">${m.kode}</td><td class="px-6 py-4 font-bold text-gray-900">${m.nama}</td>
+                    b += `<tr class="hover:bg-gray-50 transition-colors"><td class="px-6 py-4"><input type="checkbox" class="dt-checkbox w-4 h-4 rounded border-gray-300 text-primary cursor-pointer" value="${m.id}" onchange="toggleBulkDeleteBtn()"></td><td class="px-6 py-4 text-gray-500 font-mono text-xs">${m.kode}</td><td class="px-6 py-4 font-bold text-gray-900">${m.nama}</td>
                     <td class="px-6 py-4 text-right space-x-3">
                         <button onclick="editMaster('${m.id}')" class="text-blue-600 hover:text-blue-800"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                         <button onclick="confirmDeleteMaster('${currentTable}', '${m.id}')" class="text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td></tr>`;
                 });
             }
+            
+            let colSpan = currentTable === 'siswa' ? 6 : (currentTable === 'guru' ? 7 : 4);
             document.getElementById('dt-thead').innerHTML = h;
-            document.getElementById('dt-tbody').innerHTML = b || '<tr><td colspan="4" class="p-8 text-center text-gray-400">Data tidak ditemukan.</td></tr>';
+            document.getElementById('dt-tbody').innerHTML = b || `<tr><td colspan="${colSpan}" class="p-8 text-center text-gray-400">Data tidak ditemukan.</td></tr>`;
             lucide.createIcons();
         }
 
         window.confirmDeleteMaster = function(table, id) {
-            openConfirm(`Apakah Anda yakin ingin menghapus data ${table} ini?`, async () => {
+            openConfirm(`Apakah Anda yakin ingin menghapus data ini?`, async () => {
                 db[table] = db[table].filter(item => item.id !== id);
+                
+                // Bersihkan nilai terkait jika Siswa / Mapel dihapus
+                if (table === 'siswa') {
+                    for (let key in db.nilai) if (key.startsWith(id + '_')) delete db.nilai[key];
+                } else if (table === 'mapel') {
+                    for (let key in db.nilai) if (key.includes('_' + id + '_')) delete db.nilai[key];
+                }
+
                 await saveToSheets();
                 renderDataTable();
             });
         };
 
-        // Penilaian Logic
-        function setupNilaiFilter() {
-            document.getElementById('nilai-filter-kelas').innerHTML = db.kelas.map(k => `<option value="${k}">${k}</option>`).join('');
-            document.getElementById('nilai-filter-mapel').innerHTML = db.mapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
-            document.getElementById('nilai-extra-filter-container').classList.toggle('hidden', currentPenilaianType === 'sts' || currentPenilaianType === 'sas');
+        window.toggleSelectAll = function(source) {
+            const checkboxes = document.querySelectorAll('.dt-checkbox');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+            toggleBulkDeleteBtn();
+        };
+
+        window.toggleBulkDeleteBtn = function() {
+            const checkboxes = document.querySelectorAll('.dt-checkbox:checked');
+            const btn = document.getElementById('btn-delete-selected');
+            if (!btn) return;
+            
+            if (checkboxes.length > 0) {
+                btn.classList.remove('hidden');
+                btn.classList.add('flex');
+                btn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Hapus Terpilih (${checkboxes.length})`;
+                lucide.createIcons();
+            } else {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+            }
+            
+            const allCheckboxes = document.querySelectorAll('.dt-checkbox');
+            const selectAllCb = document.getElementById('dt-select-all');
+            if (selectAllCb && allCheckboxes.length > 0) {
+                selectAllCb.checked = allCheckboxes.length === checkboxes.length;
+            }
+        };
+
+        window.confirmBulkDeleteMaster = function() {
+            const checkedBoxes = document.querySelectorAll('.dt-checkbox:checked');
+            if (checkedBoxes.length === 0) return;
+            
+            openConfirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes.length} data terpilih secara permanen?`, async () => {
+                const idsToDelete = Array.from(checkedBoxes).map(cb => cb.value);
+                
+                // Hapus baris data
+                db[currentTable] = db[currentTable].filter(item => !idsToDelete.includes(item.id));
+                
+                // Bersihkan nilai yang berelasi dengan data yang dihapus untuk menghindari sampah memori (orphan data)
+                if (currentTable === 'siswa') {
+                    for (let key in db.nilai) {
+                        if (idsToDelete.some(id => key.startsWith(id + '_'))) delete db.nilai[key];
+                    }
+                } else if (currentTable === 'mapel') {
+                    for (let key in db.nilai) {
+                        if (idsToDelete.some(id => key.includes('_' + id + '_'))) delete db.nilai[key];
+                    }
+                }
+
+                await saveToSheets();
+                renderDataTable();
+            });
+        };
+
+        window.updateTugasOptions = function() {
+            const jabatan = document.getElementById('form-jabatan').value;
+            const tugasSelect = document.getElementById('form-tugas');
+            let options = '';
+            
+            if (jabatan === 'Wali Kelas') {
+                options = db.kelas.map(k => `<option value="${k}">${k}</option>`).join('');
+            } else if (jabatan === 'Guru Mapel') {
+                options = db.mapel.map(m => `<option value="${m.nama}">${m.nama}</option>`).join('');
+            }
+            
+            tugasSelect.innerHTML = options;
+        };
+
+        // --- CRUD Modal Master ---
+        function closeModal() { document.getElementById('modal-form').classList.add('hidden'); }
+
+        document.getElementById('btn-add-data').addEventListener('click', () => {
+            currentEditId = null;
+            document.getElementById('modal-title').textContent = `Tambah Data ${currentTable.charAt(0).toUpperCase() + currentTable.slice(1)}`;
+            buildModalForm();
+            document.getElementById('modal-form').classList.remove('hidden');
+        });
+
+        window.editMaster = function(id) {
+            currentEditId = id;
+            document.getElementById('modal-title').textContent = `Edit Data ${currentTable.charAt(0).toUpperCase() + currentTable.slice(1)}`;
+            buildModalForm(id);
+            document.getElementById('modal-form').classList.remove('hidden');
+        };
+
+        function buildModalForm(id = null) {
+            let item = null;
+            if(id) item = db[currentTable].find(x => x.id === id);
+            let html = '';
+            
+            if(currentTable === 'siswa') {
+                html += `<div><label class="block text-xs font-bold mb-1">NISN</label><input type="text" id="form-nisn" class="w-full border rounded px-3 py-2 outline-none focus:border-primary" value="${item ? item.nisn : ''}"></div>`;
+                html += `<div><label class="block text-xs font-bold mb-1">Nama</label><input type="text" id="form-nama" class="w-full border rounded px-3 py-2 outline-none focus:border-primary" value="${item ? item.nama : ''}"></div>`;
+                html += `<div><label class="block text-xs font-bold mb-1">Jenis Kelamin</label><select id="form-jk" class="w-full border rounded px-3 py-2 outline-none focus:border-primary"><option value="L" ${item && item.jk === 'L' ? 'selected' : ''}>Laki-laki (L)</option><option value="P" ${item && item.jk === 'P' ? 'selected' : ''}>Perempuan (P)</option></select></div>`;
+                html += `<div><label class="block text-xs font-bold mb-1">Kelas</label><select id="form-kelas" class="w-full border rounded px-3 py-2 outline-none focus:border-primary">${db.kelas.map(k => `<option value="${k}" ${item && item.kelas === k ? 'selected' : ''}>${k}</option>`).join('')}</select></div>`;
+            } else if(currentTable === 'guru') {
+                html += `<div><label class="block text-xs font-bold mb-1">NIP</label><input type="text" id="form-nip" class="w-full border rounded px-3 py-2 outline-none focus:border-primary" value="${item && item.nip ? item.nip : ''}"></div>`;
+                html += `<div><label class="block text-xs font-bold mb-1">Nama Guru</label><input type="text" id="form-nama" class="w-full border rounded px-3 py-2 outline-none focus:border-primary" value="${item ? item.nama : ''}"></div>`;
+                html += `<div>
+                            <label class="block text-xs font-bold mb-1">Jabatan</label>
+                            <select id="form-jabatan" class="w-full border rounded px-3 py-2 outline-none focus:border-primary" onchange="updateTugasOptions()">
+                                <option value="Wali Kelas" ${item && item.jabatan === 'Wali Kelas' ? 'selected' : ''}>Wali Kelas</option>
+                                <option value="Guru Mapel" ${item && item.jabatan === 'Guru Mapel' ? 'selected' : ''}>Guru Mapel</option>
+                            </select>
+                         </div>`;
+                html += `<div>
+                            <label class="block text-xs font-bold mb-1">Tugas</label>
+                            <select id="form-tugas" class="w-full border rounded px-3 py-2 outline-none focus:border-primary"></select>
+                         </div>`;
+            } else if(currentTable === 'mapel') {
+                html += `<div><label class="block text-xs font-bold mb-1">Kode Mapel</label><input type="text" id="form-kode" class="w-full border rounded px-3 py-2 outline-none focus:border-primary" value="${item ? item.kode : ''}"></div>`;
+                html += `<div><label class="block text-xs font-bold mb-1">Nama Mata Pelajaran</label><input type="text" id="form-nama" class="w-full border rounded px-3 py-2 outline-none focus:border-primary" value="${item ? item.nama : ''}"></div>`;
+            }
+            
+            document.getElementById('modal-body').innerHTML = html;
+
+            if (currentTable === 'guru') {
+                updateTugasOptions();
+                if (item && item.tugas) {
+                    document.getElementById('form-tugas').value = item.tugas;
+                }
+            }
         }
+
+        document.getElementById('btn-save-modal').addEventListener('click', async () => {
+            let generateId = () => Math.random().toString(36).substr(2, 9);
+            let newData = { id: currentEditId || generateId() };
+            
+            if(currentTable === 'siswa') {
+                newData.nisn = document.getElementById('form-nisn').value;
+                newData.nama = document.getElementById('form-nama').value;
+                newData.jk = document.getElementById('form-jk').value;
+                newData.kelas = document.getElementById('form-kelas').value;
+            } else if(currentTable === 'guru') {
+                newData.nip = document.getElementById('form-nip').value;
+                newData.nama = document.getElementById('form-nama').value;
+                newData.jabatan = document.getElementById('form-jabatan').value;
+                newData.tugas = document.getElementById('form-tugas').value;
+            } else if(currentTable === 'mapel') {
+                newData.kode = document.getElementById('form-kode').value;
+                newData.nama = document.getElementById('form-nama').value;
+            }
+
+            if(currentEditId) {
+                let idx = db[currentTable].findIndex(x => x.id === currentEditId);
+                db[currentTable][idx] = newData;
+            } else {
+                db[currentTable].push(newData);
+            }
+
+            closeModal();
+            await saveToSheets();
+            renderDataTable();
+        });
+
+        // --- Export & Import Master Data ---
+        window.downloadMasterTemplate = function() {
+            let excelData = [];
+            let fileName = `Template_Data_${currentTable}.xlsx`;
+            if (currentTable === 'siswa') {
+                excelData = [["ID_SYSTEM", "NISN", "NAMA SISWA", "L/P", "KELAS"]];
+            } else if (currentTable === 'guru') {
+                excelData = [["ID_SYSTEM", "NIP", "NAMA GURU", "JABATAN", "TUGAS"]];
+            } else if (currentTable === 'mapel') {
+                excelData = [["ID_SYSTEM", "KODE MAPEL", "NAMA MATA PELAJARAN"]];
+            }
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            XLSX.writeFile(wb, fileName);
+        };
+
+        window.importMasterData = function(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
+
+                let generateId = () => Math.random().toString(36).substr(2, 9);
+                rows.slice(1).forEach(row => {
+                    if(currentTable === 'siswa') {
+                        if(row[1] || row[2]) db.siswa.push({ id: row[0] || generateId(), nisn: String(row[1]||''), nama: String(row[2]||''), jk: String(row[3]||''), kelas: String(row[4]||'') });
+                    } else if(currentTable === 'guru') {
+                        if(row[2]) db.guru.push({ id: row[0] || generateId(), nip: String(row[1]||''), nama: String(row[2]||''), jabatan: String(row[3]||''), tugas: String(row[4]||'') });
+                    } else if(currentTable === 'mapel') {
+                        if(row[1] || row[2]) db.mapel.push({ id: row[0] || generateId(), kode: String(row[1]||''), nama: String(row[2]||'') });
+                    }
+                });
+                
+                event.target.value = '';
+                await saveToSheets();
+                renderDataTable();
+                alert("Data berhasil di-import!");
+            };
+            reader.readAsArrayBuffer(file);
+        };
+
+        window.saveMasterData = async function() {
+            await saveToSheets();
+            alert("Data berhasil disimpan dan disinkronkan ke Spreadsheet!");
+        };
+
+        // --- PENILAIAN LOGIC ---
+        function setupNilaiFilter() {
+            // Populate Guru
+            let guruOptions = '<option value="">-- Semua Guru / Admin --</option>';
+            db.guru.forEach(g => {
+                guruOptions += `<option value="${g.id}">${g.nama} (${g.jabatan})</option>`;
+            });
+            document.getElementById('nilai-filter-guru').innerHTML = guruOptions;
+
+            // Populate Kelas dengan opsi default kosong
+            document.getElementById('nilai-filter-kelas').innerHTML = '<option value="">-- Pilih Kelas --</option>' + db.kelas.map(k => `<option value="${k}">${k}</option>`).join('');
+            
+            // Populate Mapel dengan opsi default kosong
+            document.getElementById('nilai-filter-mapel').innerHTML = '<option value="">-- Pilih Mapel --</option>' + db.mapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
+            
+            // Reset state (Enable all)
+            document.getElementById('nilai-filter-kelas').disabled = false;
+            document.getElementById('nilai-filter-mapel').disabled = false;
+            
+            // Logika Penyesuaian Kolom Nilai Harian / Ulangan vs STS / SAS
+            if (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') {
+                document.getElementById('nilai-extra-filter-container').classList.add('hidden');
+            } else {
+                document.getElementById('nilai-extra-filter-container').classList.remove('hidden');
+                document.getElementById('nilai-extra-label').textContent = 'Jumlah Kolom';
+                if(!document.getElementById('nilai-filter-ke').value) {
+                    document.getElementById('nilai-filter-ke').value = 5;
+                }
+            }
+            
+            // Trigger selection logic in case a guru was selected previously
+            handleGuruSelection();
+        }
+
+        window.autoLoadNilai = function() {
+            // Jika kelas dan mapel sudah memiliki nilai, otomatis load tabelnya
+            const kls = document.getElementById('nilai-filter-kelas').value;
+            const mapel = document.getElementById('nilai-filter-mapel').value;
+            if(kls && mapel) {
+                // Gunakan timeout kecil untuk memastikan UI sudah ter-update
+                setTimeout(() => document.getElementById('btn-load-nilai').click(), 50);
+            } else {
+                // Kosongkan tabel jika filter belum lengkap agar data sebelumnya tidak membingungkan
+                document.getElementById('nilai-tbody').innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-400">Silakan atur filter dan klik "Tampilkan".</td></tr>';
+                document.getElementById('nilai-actions').classList.add('hidden');
+            }
+        };
+
+        // Logic penguncian dropdown Kelas / Mapel berdasarkan Pilihan Guru
+        window.handleGuruSelection = function() {
+            const guruId = document.getElementById('nilai-filter-guru').value;
+            const kelasSelect = document.getElementById('nilai-filter-kelas');
+            const mapelSelect = document.getElementById('nilai-filter-mapel');
+
+            // Reset state dan value agar bersih saat berganti guru
+            kelasSelect.disabled = false;
+            mapelSelect.disabled = false;
+            kelasSelect.value = "";
+            mapelSelect.value = "";
+
+            if (guruId) {
+                const guru = db.guru.find(g => String(g.id) === String(guruId));
+                if (guru) {
+                    // Gunakan toLowerCase() agar pencocokan kebal terhadap perbedaan huruf besar/kecil
+                    const jabatan = (guru.jabatan || "").toLowerCase().trim();
+                    const tugas = (guru.tugas || "").trim();
+
+                    if (jabatan === 'wali kelas' && tugas) {
+                        // Pastikan opsi ada di dalam select box sebelum mengeset nilainya
+                        const optionExists = Array.from(kelasSelect.options).some(opt => opt.value === tugas);
+                        if (optionExists) {
+                            kelasSelect.value = tugas;
+                            kelasSelect.disabled = true; // Kunci pilihan kelas
+                        }
+                    } else if (jabatan === 'guru mapel' && tugas) {
+                        // Toleransi jika ada perbedaan huruf besar/kecil atau spasi pada penulisan mapel
+                        const matchedMapel = db.mapel.find(m => m.nama.toLowerCase().trim() === tugas.toLowerCase());
+                        if (matchedMapel) {
+                            mapelSelect.value = matchedMapel.id;
+                            mapelSelect.disabled = true; // Kunci pilihan mata pelajaran
+                        }
+                    }
+                }
+            }
+            
+            // Otomatis menampilkan data ke tabel setelah filter berubah (jika lengkap)
+            autoLoadNilai();
+        };
 
         document.getElementById('btn-load-nilai').addEventListener('click', () => {
             const kls = document.getElementById('nilai-filter-kelas').value;
             const mid = document.getElementById('nilai-filter-mapel').value;
             const sem = document.getElementById('nilai-filter-semester').value;
-            const ke = document.getElementById('nilai-filter-ke').value || 1;
+            let numCols = 1;
+
+            if (!kls || !mid) {
+                alert("Silakan lengkapi pilihan Kelas dan Mata Pelajaran terlebih dahulu!");
+                return;
+            }
+
+            if (currentPenilaianType === 'harian' || currentPenilaianType === 'ulangan') {
+                numCols = parseInt(document.getElementById('nilai-filter-ke').value) || 5;
+            }
+
+            // Membangun Thead Secara Dinamis
+            let theadHtml = `<tr><th class="px-6 py-3 text-left w-16 sticky left-0 bg-gray-50 z-10">No</th><th class="px-6 py-3 text-left sticky left-16 bg-gray-50 z-10 border-r border-gray-200">Nama Siswa</th>`;
+            if (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') {
+                theadHtml += `<th class="px-6 py-3 text-center">Nilai</th>`;
+            } else {
+                for(let i = 1; i <= numCols; i++) {
+                    theadHtml += `<th class="px-2 py-3 text-center min-w-[80px]">Ke-${i}</th>`;
+                }
+            }
+            theadHtml += `<th class="px-6 py-3 text-right">Aksi</th></tr>`;
+            document.getElementById('nilai-thead').innerHTML = theadHtml;
+
+            // Membangun Tbody
             let siswa = db.siswa.filter(s => s.kelas === kls);
             let b = '';
             siswa.forEach((s, idx) => {
-                let suffix = (currentPenilaianType==='sts'||currentPenilaianType==='sas') ? '1' : ke;
-                let key = `${s.id}_${mid}_${currentPenilaianType}_${sem}_${suffix}`;
-                let val = db.nilai[key] !== undefined ? db.nilai[key] : '';
-                b += `<tr class="hover:bg-gray-50"><td class="px-6 py-3 text-gray-400">${idx+1}</td><td class="px-6 py-3 font-bold">${s.nama}</td><td class="px-6 py-3 text-center"><input type="number" class="val-nilai w-20 border-2 border-gray-100 rounded-lg text-center py-2 focus:border-primary outline-none" data-key="${key}" data-student="${s.id}" value="${val}"></td>
-                <td class="px-6 py-3 text-right"><button onclick="deleteSingleNilai('${key}')" class="text-gray-300 hover:text-red-500"><i data-lucide="x-circle" class="w-5 h-5"></i></button></td></tr>`;
+                b += `<tr class="hover:bg-blue-50 transition-colors">
+                        <td class="px-6 py-3 text-gray-400 sticky left-0 bg-white group-hover:bg-blue-50">${idx+1}</td>
+                        <td class="px-6 py-3 font-bold whitespace-nowrap sticky left-16 bg-white group-hover:bg-blue-50 border-r border-gray-100">${s.nama}</td>`;
+                
+                let studentKeys = []; 
+                if (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') {
+                    let key = `${s.id}_${mid}_${currentPenilaianType}_${sem}_1`;
+                    studentKeys.push(key);
+                    let val = db.nilai[key] !== undefined ? db.nilai[key] : '';
+                    b += `<td class="px-6 py-3 text-center">
+                            <input type="number" class="val-nilai w-20 border-2 border-gray-200 rounded-lg text-center py-2 focus:border-primary outline-none focus:ring-2 focus:ring-blue-200" data-key="${key}" value="${val}">
+                          </td>`;
+                } else {
+                    for(let i = 1; i <= numCols; i++) {
+                        let key = `${s.id}_${mid}_${currentPenilaianType}_${sem}_${i}`;
+                        studentKeys.push(key);
+                        let val = db.nilai[key] !== undefined ? db.nilai[key] : '';
+                        b += `<td class="px-2 py-3 text-center">
+                                <input type="number" class="val-nilai w-16 border border-gray-300 rounded-lg text-center py-1.5 focus:border-primary outline-none focus:ring-2 focus:ring-blue-200 text-sm font-semibold" data-key="${key}" value="${val}">
+                              </td>`;
+                    }
+                }
+                
+                b += `<td class="px-6 py-3 text-right">
+                        <button onclick="deleteRowNilai('${studentKeys.join(',')}')" class="text-gray-300 hover:text-red-500 bg-white p-1.5 rounded-full hover:bg-red-50 transition-all" title="Kosongkan Semua Nilai Siswa Ini">
+                            <i data-lucide="x-circle" class="w-5 h-5"></i>
+                        </button>
+                      </td></tr>`;
             });
-            document.getElementById('nilai-tbody').innerHTML = b || '<tr><td colspan="4" class="p-8 text-center text-gray-400">Belum ada siswa di kelas ini.</td></tr>';
+
+            document.getElementById('nilai-tbody').innerHTML = b || `<tr><td colspan="${numCols + 3}" class="p-8 text-center text-gray-400">Belum ada siswa di kelas ini.</td></tr>`;
             document.getElementById('nilai-actions').classList.remove('hidden');
             lucide.createIcons();
         });
+
+        window.confirmBulkDeleteNilai = function() {
+            openConfirm("Kosongkan SEMUA nilai yang ada di daftar tabel saat ini?", async () => {
+                document.querySelectorAll('.val-nilai').forEach(i => { delete db.nilai[i.dataset.key]; });
+                await saveToSheets();
+                document.getElementById('btn-load-nilai').click(); 
+            });
+        };
+
+        window.deleteRowNilai = function(keysStr) {
+             openConfirm("Kosongkan nilai khusus untuk siswa ini?", async () => {
+                 let keys = keysStr.split(',');
+                 keys.forEach(k => delete db.nilai[k]);
+                 await saveToSheets();
+                 document.getElementById('btn-load-nilai').click();
+             });
+        }
 
         window.downloadNilaiTemplate = function() {
             const kls = document.getElementById('nilai-filter-kelas').value;
             const mid = document.getElementById('nilai-filter-mapel').value;
             const mapelObj = db.mapel.find(m => m.id === mid);
             const type = currentPenilaianType.toUpperCase();
-            const sem = document.getElementById('nilai-filter-semester').value;
+            
+            let numCols = 1;
+            if (currentPenilaianType === 'harian' || currentPenilaianType === 'ulangan') {
+                numCols = parseInt(document.getElementById('nilai-filter-ke').value) || 5;
+            }
 
             let siswas = db.siswa.filter(s => s.kelas === kls);
             if(siswas.length === 0) { alert("Tidak ada data siswa."); return; }
 
-            let excelData = [["ID_SISWA", "NO", "NAMA SISWA", "NILAI"]];
-            siswas.forEach((s, idx) => { excelData.push([s.id, idx + 1, s.nama, ""]); });
+            let headers = ["ID_SISWA", "NO", "NAMA SISWA"];
+            if (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') {
+                headers.push("NILAI");
+            } else {
+                for(let i=1; i<=numCols; i++) headers.push(`NILAI_KE_${i}`);
+            }
+
+            let excelData = [headers];
+            siswas.forEach((s, idx) => { 
+                let row = [s.id, idx + 1, s.nama];
+                for(let i=0; i<numCols; i++) row.push(""); 
+                excelData.push(row); 
+            });
 
             const ws = XLSX.utils.aoa_to_sheet(excelData);
             if(!ws['!cols']) ws['!cols'] = [];
@@ -646,18 +1062,34 @@
                 const rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
                 const mid = document.getElementById('nilai-filter-mapel').value;
                 const sem = document.getElementById('nilai-filter-semester').value;
-                const ke = document.getElementById('nilai-filter-ke').value || 1;
-                const suffix = (currentPenilaianType==='sts'||currentPenilaianType==='sas') ? '1' : ke;
+                
+                let numCols = 1;
+                if (currentPenilaianType === 'harian' || currentPenilaianType === 'ulangan') {
+                    numCols = parseInt(document.getElementById('nilai-filter-ke').value) || 5;
+                }
 
                 rows.slice(1).forEach(row => {
-                    const sid = row[0]; const val = row[3];
-                    if(sid && val !== undefined && val !== "") {
-                        const key = `${sid}_${mid}_${currentPenilaianType}_${sem}_${suffix}`;
-                        db.nilai[key] = Number(val);
+                    const sid = row[0];
+                    if(!sid) return;
+
+                    if (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') {
+                        const val = row[3];
+                        if(val !== undefined && val !== "") {
+                            const key = `${sid}_${mid}_${currentPenilaianType}_${sem}_1`;
+                            db.nilai[key] = Number(val);
+                        }
+                    } else {
+                        for(let i=1; i<=numCols; i++) {
+                            const val = row[2 + i];
+                            if(val !== undefined && val !== "") {
+                                const key = `${sid}_${mid}_${currentPenilaianType}_${sem}_${i}`;
+                                db.nilai[key] = Number(val);
+                            }
+                        }
                     }
                 });
                 document.getElementById('btn-load-nilai').click();
-                event.target.value = '';
+                event.target.value = ''; 
             };
             reader.readAsArrayBuffer(file);
         };
@@ -671,6 +1103,7 @@
             alert("Data berhasil disimpan.");
         });
 
+        // --- LAPORAN LOGIC ---
         function setupRekapFilter() {
             document.getElementById('rekap-filter-kelas').innerHTML = db.kelas.map(k => `<option value="${k}">${k}</option>`).join('');
             document.getElementById('rekap-filter-mapel').innerHTML = db.mapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
@@ -735,9 +1168,10 @@
             XLSX.writeFile(wb, `Ledger_Kelas.xlsx`);
         };
 
-        function closeModal() { document.getElementById('modal-form').classList.add('hidden'); }
+        // --- Event Listeners Initialization ---
         document.getElementById('dt-search').addEventListener('input', renderDataTable);
         document.getElementById('dt-filter').addEventListener('change', renderDataTable);
     </script>
 </body>
 </html>
+
