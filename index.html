@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta tag viewport diatur ulang agar optimal di HP dan mencegah zoom otomatis -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SIPENILA SD - Sistem Penilaian Digital</title>
     
@@ -196,17 +195,23 @@
             <header class="h-14 md:h-16 bg-white shadow-sm border-b border-gray-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0 z-20">
                 <div class="text-base md:text-xl font-bold text-gray-800 truncate pr-2" id="header-title">Dashboard</div>
                 <div class="flex items-center space-x-2 md:space-x-4">
-                    <button onclick="fetchDataFromSheets(true)" class="text-xs bg-green-100 text-green-700 hover:bg-green-200 px-2 py-1.5 md:px-3 md:py-1.5 rounded-full flex items-center">
+                    
+                    <!-- Tombol Fullscreen -->
+                    <button onclick="toggleFullscreen()" class="text-gray-500 hover:text-primary flex items-center bg-gray-100 md:bg-transparent p-1.5 md:p-0 rounded-full transition-colors" title="Layar Penuh">
+                        <i data-lucide="maximize" id="fullscreen-icon" class="w-4 h-4 md:w-5 md:h-5"></i>
+                    </button>
+
+                    <button onclick="fetchDataFromSheets(true)" class="text-xs bg-green-100 text-green-700 hover:bg-green-200 px-2 py-1.5 md:px-3 md:py-1.5 rounded-full flex items-center transition-colors">
                         <i data-lucide="refresh-cw" class="w-3.5 h-3.5 md:w-4 md:h-4 md:mr-1"></i> <span class="hidden md:inline">Refresh</span>
                     </button>
-                    <button onclick="logout()" class="text-gray-500 hover:text-red-500 flex items-center bg-gray-100 md:bg-transparent p-1.5 md:p-0 rounded-full">
+                    <button onclick="logout()" class="text-gray-500 hover:text-red-500 flex items-center bg-gray-100 md:bg-transparent p-1.5 md:p-0 rounded-full transition-colors">
                         <span class="hidden md:inline text-xs font-bold mr-2 uppercase">Keluar</span>
                         <i data-lucide="log-out" class="w-4 h-4 md:w-5 md:h-5 text-red-500 md:text-gray-500"></i>
                     </button>
                 </div>
             </header>
 
-            <!-- CONTENT AREA (Padding bottom ditambahkan khusus HP agar tidak tertutup nav bawah) -->
+            <!-- CONTENT AREA -->
             <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 relative">
                 
                 <!-- Local Processing Overlay -->
@@ -301,7 +306,7 @@
                             <select id="nilai-filter-mapel" class="w-full border rounded px-2 py-1.5 text-xs" onchange="autoLoadNilai()"></select>
                         </div>
                         
-                        <!-- Input Jumlah Kolom (Sekarang tampil di semua perangkat) -->
+                        <!-- Input Jumlah Kolom -->
                         <div id="nilai-extra-filter-container" class="col-span-1">
                             <label class="block text-[10px] font-bold mb-1 uppercase text-blue-600" title="Tentukan jumlah kolom nilai">Jml Kolom</label>
                             <input type="number" id="nilai-filter-ke" min="1" max="25" value="5" class="w-full border border-blue-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none bg-blue-50" onchange="autoLoadNilai()">
@@ -413,12 +418,10 @@
             <h3 class="font-bold text-gray-800 text-sm uppercase" id="mob-menu-title">Menu</h3>
             <button onclick="closeMobileMenu()" class="bg-gray-200 p-1 rounded-full text-gray-600"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
-        <div class="p-2 overflow-y-auto" id="mob-menu-content">
-            <!-- Isi menu disuntik via JS -->
-        </div>
+        <div class="p-2 overflow-y-auto" id="mob-menu-content"></div>
     </div>
 
-    <!-- MODAL CRUD (Responsive fix) -->
+    <!-- MODAL CRUD -->
     <div id="modal-form" class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden fade-in flex flex-col max-h-[90vh]">
             <div class="p-4 border-b"><h3 class="text-base font-bold" id="modal-title">Form Data</h3></div>
@@ -447,6 +450,34 @@
         function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
         function showProcessing() { document.getElementById('local-loading').classList.remove('hidden'); }
         function hideProcessing() { document.getElementById('local-loading').classList.add('hidden'); }
+
+        // Fullscreen Logic
+        window.toggleFullscreen = function() {
+            const doc = window.document;
+            const docEl = doc.documentElement;
+            const icon = document.getElementById('fullscreen-icon');
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+            if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                if(requestFullScreen) requestFullScreen.call(docEl);
+                if(icon) { icon.setAttribute('data-lucide', 'minimize'); lucide.createIcons(); }
+            } else {
+                if(cancelFullScreen) cancelFullScreen.call(doc);
+                if(icon) { icon.setAttribute('data-lucide', 'maximize'); lucide.createIcons(); }
+            }
+        };
+
+        function exitHandler() {
+            const icon = document.getElementById('fullscreen-icon');
+            if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                if(icon) { icon.setAttribute('data-lucide', 'maximize'); lucide.createIcons(); }
+            }
+        }
+        document.addEventListener('fullscreenchange', exitHandler);
+        document.addEventListener('webkitfullscreenchange', exitHandler);
+        document.addEventListener('mozfullscreenchange', exitHandler);
+        document.addEventListener('MSFullscreenChange', exitHandler);
 
         // Mobile Menu Drawer Logic
         function openMobileMenu(category) {
@@ -493,7 +524,6 @@
         function mobSwitchView(target, category) {
             closeMobileMenu();
             switchView(target);
-            // Highlight bottom nav parent
             document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
             const activeBtn = document.querySelector(`.mob-nav-item[onclick*="openMobileMenu('${category}')"]`);
             if(activeBtn) activeBtn.classList.add('active');
@@ -535,7 +565,7 @@
                 
                 if (userRole === 'guru') {
                     document.getElementById('sidebar-master-group').classList.add('hidden');
-                    document.getElementById('mob-nav-master-btn').classList.add('hidden'); // Sembunyikan nav master di HP
+                    document.getElementById('mob-nav-master-btn').classList.add('hidden');
                     document.getElementById('user-role-badge').textContent = "GURU";
                     document.getElementById('welcome-text').textContent = "Panel Guru";
                 } else {
@@ -545,13 +575,12 @@
                     document.getElementById('welcome-text').textContent = "Panel Admin";
                 }
                 await fetchDataFromSheets();
-            } else { 
-                err.classList.remove('hidden'); 
-            }
+            } else { err.classList.remove('hidden'); }
         });
 
         function logout() { location.reload(); }
 
+        // Navigation
         document.querySelectorAll('.nav-item').forEach(i => i.addEventListener('click', () => {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             i.classList.add('active');
@@ -566,9 +595,6 @@
                 document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
                 const activeMob = document.querySelector('.mob-nav-item[data-mob-target="dashboard"]');
                 if(activeMob) activeMob.classList.add('active');
-            }
-
-            if(target === 'dashboard') {
                 document.getElementById('view-dashboard').classList.remove('hidden');
                 document.getElementById('header-title').textContent = "Dashboard";
                 renderDashboard();
@@ -582,16 +608,12 @@
                 document.getElementById('view-nilai').classList.remove('hidden');
                 document.getElementById('header-title').textContent = `Nilai ${currentPenilaianType.toUpperCase()}`;
                 
-                // Menampilkan/Menyembunyikan opsi "Jml Kolom" berdasarkan jenis penilaian
                 const extraFilter = document.getElementById('nilai-extra-filter-container');
-                if(currentPenilaianType === 'sts' || currentPenilaianType === 'sas') {
-                    extraFilter.classList.add('hidden');
-                } else {
-                    extraFilter.classList.remove('hidden');
-                }
+                if(currentPenilaianType === 'sts' || currentPenilaianType === 'sas') { extraFilter.classList.add('hidden'); } 
+                else { extraFilter.classList.remove('hidden'); }
 
                 setupNilaiFilter();
-                document.getElementById('nilai-tbody').innerHTML = '<tr><td colspan="10" class="p-4 text-center text-xs text-gray-400">Pilih filter lalu klik Tampilkan.</td></tr>';
+                document.getElementById('nilai-tbody').innerHTML = '<tr><td colspan="10" class="p-4 text-center text-xs text-gray-400">Pilih filter lalu klik Tampil.</td></tr>';
                 document.getElementById('nilai-thead').innerHTML = '';
             } else if(target === 'rekap-nilai') {
                 document.getElementById('view-rekap').classList.remove('hidden');
@@ -612,6 +634,7 @@
             document.getElementById('stat-nilai').textContent = db.nilai ? Object.keys(db.nilai).length : 0;
         }
 
+        // --- Data Table Master & CRUD Actions ---
         function setupDataTable() {
             const f = document.getElementById('dt-filter');
             if(!f) return;
@@ -621,7 +644,7 @@
             } else f.classList.add('hidden');
         }
 
-        function renderDataTable() {
+        window.renderDataTable = function() {
             const searchEl = document.getElementById('dt-search');
             const filterEl = document.getElementById('dt-filter');
             const search = searchEl ? searchEl.value.toLowerCase() : '';
@@ -654,12 +677,67 @@
             if(dtThead) dtThead.innerHTML = h; 
             if(dtTbody) dtTbody.innerHTML = b || `<tr><td colspan="6" class="p-6 text-center text-xs text-gray-400">Tidak ada data.</td></tr>`;
             lucide.createIcons();
-        }
-        window.renderDataTable = renderDataTable;
+        };
 
         function openConfirm(msg, action) { document.getElementById('confirm-message').textContent = msg; document.getElementById('confirm-modal').classList.remove('hidden'); document.getElementById('confirm-delete-btn').onclick = () => { action(); closeConfirm(); }; }
-        // --- Ekspor, Impor, & Template Data Master (Excel) ---
+        function closeConfirm() { document.getElementById('confirm-modal').classList.add('hidden'); }
+        function closeModal() { document.getElementById('modal-form').classList.add('hidden'); }
         
+        window.confirmDeleteMaster = function(id) { openConfirm("Hapus data ini?", async () => { db[currentTable] = db[currentTable].filter(i => i.id !== id); await saveToSheets(); window.renderDataTable(); }); };
+        window.confirmBulkDeleteMaster = function() {
+            const checkedBoxes = document.querySelectorAll('.dt-checkbox:checked');
+            if (checkedBoxes.length === 0) return;
+            openConfirm(`Hapus ${checkedBoxes.length} data terpilih secara permanen?`, async () => {
+                const idsToDelete = Array.from(checkedBoxes).map(cb => cb.value);
+                db[currentTable] = db[currentTable].filter(item => !idsToDelete.includes(item.id));
+                await saveToSheets();
+                window.renderDataTable();
+            });
+        };
+        window.toggleSelectAll = function(source) {
+            const checkboxes = document.querySelectorAll('.dt-checkbox');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        };
+        
+        let editId = null;
+        const btnAddData = document.getElementById('btn-add-data');
+        if (btnAddData) btnAddData.onclick = () => { editId = null; buildModal(); document.getElementById('modal-form').classList.remove('hidden'); };
+        
+        window.editMaster = function(id) { editId = id; buildModal(id); document.getElementById('modal-form').classList.remove('hidden'); };
+
+        function buildModal(id=null) {
+            let i = id ? db[currentTable].find(x=>x.id===id) : null; let h = '';
+            if(currentTable==='siswa') {
+                h += `<div><label class="text-xs font-bold">NISN</label><input type="text" id="f-nisn" class="w-full border rounded p-2" value="${i?i.nisn:''}"></div>`;
+                h += `<div><label class="text-xs font-bold">Nama</label><input type="text" id="f-nama" class="w-full border rounded p-2" value="${i?i.nama:''}"></div>`;
+                h += `<div><label class="text-xs font-bold">J.Kelamin</label><select id="f-jk" class="w-full border rounded p-2"><option value="L" ${i&&i.jk==='L'?'selected':''}>L</option><option value="P" ${i&&i.jk==='P'?'selected':''}>P</option></select></div>`;
+                h += `<div><label class="text-xs font-bold">Kelas</label><select id="f-kelas" class="w-full border rounded p-2">${db.kelas.map(k=>`<option value="${k}" ${i&&i.kelas===k?'selected':''}>${k}</option>`).join('')}</select></div>`;
+            } else if(currentTable==='guru') {
+                h += `<div><label class="text-xs font-bold">Nama</label><input type="text" id="f-nama" class="w-full border rounded p-2" value="${i?i.nama:''}"></div>`;
+                h += `<div><label class="text-xs font-bold">Jabatan</label><select id="f-jab" class="w-full border rounded p-2" onchange="updTugas()"><option value="Wali Kelas" ${i&&i.jabatan==='Wali Kelas'?'selected':''}>Wali Kelas</option><option value="Guru Mapel" ${i&&i.jabatan==='Guru Mapel'?'selected':''}>Guru Mapel</option></select></div>`;
+                h += `<div><label class="text-xs font-bold">Tugas</label><select id="f-tug" class="w-full border rounded p-2"></select></div>`;
+            } else {
+                h += `<div><label class="text-xs font-bold">Kode</label><input type="text" id="f-kode" class="w-full border rounded p-2" value="${i?i.kode:''}"></div>`;
+                h += `<div><label class="text-xs font-bold">Nama Mapel</label><input type="text" id="f-nama" class="w-full border rounded p-2" value="${i?i.nama:''}"></div>`;
+            }
+            document.getElementById('modal-body').innerHTML = h; if(currentTable==='guru') { window.updTugas(); if(i) document.getElementById('f-tug').value=i.tugas; }
+        }
+        
+        window.updTugas = function() {
+            const j = document.getElementById('f-jab').value; const t = document.getElementById('f-tug');
+            t.innerHTML = j==='Wali Kelas' ? db.kelas.map(k=>`<option value="${k}">${k}</option>`).join('') : db.mapel.map(m=>`<option value="${m.nama}">${m.nama}</option>`).join('');
+        };
+
+        document.getElementById('btn-save-modal').onclick = async () => {
+            let nd = { id: editId || Math.random().toString(36).substr(2,9) };
+            if(currentTable==='siswa') { nd.nisn=document.getElementById('f-nisn').value; nd.nama=document.getElementById('f-nama').value; nd.jk=document.getElementById('f-jk').value; nd.kelas=document.getElementById('f-kelas').value; }
+            else if(currentTable==='guru') { nd.nama=document.getElementById('f-nama').value; nd.jabatan=document.getElementById('f-jab').value; nd.tugas=document.getElementById('f-tug').value; }
+            else { nd.kode=document.getElementById('f-kode').value; nd.nama=document.getElementById('f-nama').value; }
+            if(editId) db[currentTable][db[currentTable].findIndex(x=>x.id===editId)] = nd; else db[currentTable].push(nd);
+            closeModal(); await saveToSheets(); window.renderDataTable();
+        };
+
+        // --- Ekspor, Impor, & Template Data Master (Excel) ---
         window.downloadMasterTemplate = function() {
             if(!currentTable) return;
             showProcessing();
@@ -667,43 +745,21 @@
             let templateData = [];
             let sheetName = "";
             
-            // Membuat header dan data dummy (contoh) sesuai tabel yang aktif
             if (currentTable === 'siswa') {
                 sheetName = "Template_Siswa";
-                templateData.push({
-                    "nisn": "1234567890",
-                    "nama": "Siswa Contoh Pertama",
-                    "jk": "L",
-                    "kelas": "1A"
-                });
+                templateData.push({ "nisn": "1234567890", "nama": "Siswa Contoh Pertama", "jk": "L", "kelas": "1A" });
             } else if (currentTable === 'guru') {
                 sheetName = "Template_Guru";
-                templateData.push({
-                    "nip": "198001012000011001",
-                    "nama": "Budi Santoso, S.Pd",
-                    "jabatan": "Wali Kelas",
-                    "tugas": "1A"
-                });
-                templateData.push({
-                    "nip": "-",
-                    "nama": "Siti Aminah, S.Pd",
-                    "jabatan": "Guru Mapel",
-                    "tugas": "Pendidikan Agama Islam"
-                });
+                templateData.push({ "nip": "198001012000011001", "nama": "Budi Santoso, S.Pd", "jabatan": "Wali Kelas", "tugas": "1A" });
+                templateData.push({ "nip": "-", "nama": "Siti Aminah, S.Pd", "jabatan": "Guru Mapel", "tugas": "Pendidikan Agama Islam" });
             } else if (currentTable === 'mapel') {
                 sheetName = "Template_Mapel";
-                templateData.push({
-                    "kode": "PAI",
-                    "nama": "Pendidikan Agama Islam"
-                });
+                templateData.push({ "kode": "PAI", "nama": "Pendidikan Agama Islam" });
             }
 
-            // Generate lembar kerja Excel
             const ws = XLSX.utils.json_to_sheet(templateData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, sheetName);
-            
-            // Unduh file .xlsx
             XLSX.writeFile(wb, `${sheetName}_SIPENILA.xlsx`);
             hideProcessing();
         };
@@ -711,13 +767,9 @@
         window.exportMasterExcel = function() {
             if(!currentTable || !db[currentTable] || db[currentTable].length === 0) return alert("Tidak ada data untuk diekspor.");
             showProcessing();
-            
-            // Generate lembar kerja Excel
             const ws = XLSX.utils.json_to_sheet(db[currentTable]);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Data " + currentTable.toUpperCase());
-            
-            // Unduh file .xlsx
             XLSX.writeFile(wb, `Data_${currentTable}_SIPENILA.xlsx`);
             hideProcessing();
         };
@@ -736,25 +788,88 @@
                     const excelData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
                     if(excelData.length > 0) {
-                        // Tambahkan baris baru, jika tidak ada ID, buatkan ID acak
                         excelData.forEach(row => {
                             if(!row.id) row.id = Math.random().toString(36).substr(2,9);
                             db[currentTable].push(row);
                         });
                         await saveToSheets();
-                        renderDataTable();
+                        window.renderDataTable();
                         alert(`Berhasil mengimpor ${excelData.length} data ${currentTable}!`);
-                    } else {
-                        alert("File Excel kosong atau format tidak sesuai.");
-                    }
-                } catch (err) {
-                    alert("Gagal membaca file Excel.");
-                    console.error(err);
-                }
+                    } else { alert("File Excel kosong atau format tidak sesuai."); }
+                } catch (err) { alert("Gagal membaca file Excel."); }
                 hideProcessing();
-                e.target.value = ''; // Reset input file
+                e.target.value = ''; 
             };
             reader.readAsArrayBuffer(file);
+        };
+
+        // --- Penilaian ---
+        function setupNilaiFilter() {
+            document.getElementById('nilai-filter-guru').innerHTML = '<option value="">Semua</option>' + db.guru.map(g => `<option value="${g.id}">${g.nama}</option>`).join('');
+            document.getElementById('nilai-filter-kelas').innerHTML = '<option value="">Pilih</option>' + db.kelas.map(k => `<option value="${k}">${k}</option>`).join('');
+            document.getElementById('nilai-filter-mapel').innerHTML = '<option value="">Pilih</option>' + db.mapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
+        }
+
+        window.autoLoadNilai = function() {
+            const k = document.getElementById('nilai-filter-kelas').value;
+            const m = document.getElementById('nilai-filter-mapel').value;
+            if(k && m) setTimeout(() => document.getElementById('btn-load-nilai').click(), 50);
+            else {
+                document.getElementById('nilai-tbody').innerHTML = '<tr><td colspan="10" class="p-4 text-center text-xs text-gray-400">Pilih filter lalu klik Tampil.</td></tr>';
+                document.getElementById('nilai-actions').classList.add('hidden');
+            }
+        };
+
+        window.handleGuruSelection = function() {
+            const g = db.guru.find(x => String(x.id) === document.getElementById('nilai-filter-guru').value);
+            if(g && g.jabatan === 'Wali Kelas') { document.getElementById('nilai-filter-kelas').value = g.tugas; }
+            else if(g && g.jabatan === 'Guru Mapel') { const m = db.mapel.find(x => x.nama === g.tugas); if(m) document.getElementById('nilai-filter-mapel').value = m.id; }
+            autoLoadNilai();
+        };
+        
+        window.confirmBulkDeleteNilai = function() {
+            openConfirm("Apakah Anda yakin ingin mereset/menghapus semua nilai di tabel ini?", async () => { 
+                const k = document.getElementById('nilai-filter-kelas').value;
+                const m = document.getElementById('nilai-filter-mapel').value;
+                const s = document.getElementById('nilai-filter-semester').value;
+                
+                // Hapus hanya nilai yang sesuai filter (Siswa di kelas K, Mapel M, Tipe Penilaian T, Semester S)
+                db.siswa.filter(sis => sis.kelas === k).forEach(sis => {
+                    for(let key in db.nilai) {
+                        if(key.startsWith(`${sis.id}_${m}_${currentPenilaianType}_${s}_`)) {
+                            delete db.nilai[key];
+                        }
+                    }
+                });
+                
+                await saveToSheets(); 
+                autoLoadNilai(); 
+            }); 
+        };
+
+        document.getElementById('btn-load-nilai').onclick = () => {
+            const k = document.getElementById('nilai-filter-kelas').value, m = document.getElementById('nilai-filter-mapel').value, s = document.getElementById('nilai-filter-semester').value;
+            if(!k || !m) return;
+            let cols = (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') ? 1 : (parseInt(document.getElementById('nilai-filter-ke').value) || 5);
+            let h = `<tr><th class="px-3 py-2 sticky-col border-r bg-gray-50 z-10 w-24 md:w-48 text-left">Nama</th>`;
+            for(let i=1;i<=cols;i++) h += `<th class="px-2 py-2 text-center min-w-[60px]">${cols===1?'Nilai':'K-'+i}</th>`; h += `</tr>`;
+            document.getElementById('nilai-thead').innerHTML = h;
+            
+            let b = '';
+            db.siswa.filter(x=>x.kelas===k).forEach(sis => {
+                b += `<tr class="border-b"><td class="px-3 py-2 font-bold text-xs sticky-col border-r border-gray-100 bg-white truncate max-w-[120px] md:max-w-none">${sis.nama}</td>`;
+                for(let i=1;i<=cols;i++) {
+                    let key = `${sis.id}_${m}_${currentPenilaianType}_${s}_${i}`;
+                    b += `<td class="px-2 py-1 text-center"><input type="number" class="v-nil w-12 border rounded text-center p-1 text-xs focus:ring-1 focus:ring-primary outline-none" data-k="${key}" value="${db.nilai[key]!==undefined?db.nilai[key]:''}"></td>`;
+                } b += `</tr>`;
+            });
+            document.getElementById('nilai-tbody').innerHTML = b || '<tr><td colspan="10" class="text-center p-4">Tidak ada siswa.</td></tr>'; 
+            document.getElementById('nilai-actions').classList.remove('hidden');
+        };
+
+        document.getElementById('btn-save-nilai').onclick = async () => {
+            document.querySelectorAll('.v-nil').forEach(i => { if(i.value==='') delete db.nilai[i.dataset.k]; else db.nilai[i.dataset.k] = Number(i.value); });
+            await saveToSheets(); alert("Nilai tersimpan.");
         };
 
         // --- Ekspor & Impor Nilai (Excel) ---
@@ -768,7 +883,6 @@
             let cols = (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') ? 1 : (parseInt(document.getElementById('nilai-filter-ke').value) || 5);
             let exportData = [];
 
-            // Membangun array data berdasarkan siswa di kelas yang dipilih
             db.siswa.filter(x => x.kelas === k).forEach(sis => {
                 let rowData = { "ID_Siswa": sis.id, "Nama_Siswa": sis.nama };
                 for(let i=1; i<=cols; i++) {
@@ -810,12 +924,11 @@
 
                     let count = 0;
                     excelData.forEach(row => {
-                        const sid = row["ID_Siswa"]; // Patokan utama adalah ID_Siswa
+                        const sid = row["ID_Siswa"]; 
                         if(sid) {
                             for(let i=1; i<=cols; i++) {
                                 let key = `${sid}_${m}_${currentPenilaianType}_${s}_${i}`;
                                 let colName = cols === 1 ? "Nilai" : `Kolom_${i}`;
-                                // Hanya simpan jika nilai berupa angka atau bisa dikonversi ke angka
                                 if(row[colName] !== undefined && row[colName] !== '') {
                                     db.nilai[key] = Number(row[colName]);
                                     count++;
@@ -825,80 +938,15 @@
                     });
                     
                     await saveToSheets();
-                    autoLoadNilai(); // Muat ulang tabel di layar
+                    autoLoadNilai(); 
                     alert(`Berhasil mengimpor ${count} entri nilai!`);
                 } catch (err) {
-                    alert("Gagal memproses file Excel. Pastikan Anda menggunakan file hasil Export aplikasi ini.");
-                    console.error(err);
+                    alert("Gagal memproses file Excel.");
                 }
                 hideProcessing();
-                e.target.value = ''; // Reset input file
+                e.target.value = ''; 
             };
             reader.readAsArrayBuffer(file);
-        };
-
-        document.getElementById('btn-save-modal').onclick = async () => {
-            let nd = { id: editId || Math.random().toString(36).substr(2,9) };
-            if(currentTable==='siswa') { nd.nisn=document.getElementById('f-nisn').value; nd.nama=document.getElementById('f-nama').value; nd.jk=document.getElementById('f-jk').value; nd.kelas=document.getElementById('f-kelas').value; }
-            else if(currentTable==='guru') { nd.nama=document.getElementById('f-nama').value; nd.jabatan=document.getElementById('f-jab').value; nd.tugas=document.getElementById('f-tug').value; }
-            else { nd.kode=document.getElementById('f-kode').value; nd.nama=document.getElementById('f-nama').value; }
-            if(editId) db[currentTable][db[currentTable].findIndex(x=>x.id===editId)] = nd; else db[currentTable].push(nd);
-            closeModal(); await saveToSheets(); window.renderDataTable();
-        };
-
-        // --- Penilaian ---
-        function setupNilaiFilter() {
-            document.getElementById('nilai-filter-guru').innerHTML = '<option value="">Semua</option>' + db.guru.map(g => `<option value="${g.id}">${g.nama}</option>`).join('');
-            document.getElementById('nilai-filter-kelas').innerHTML = '<option value="">Pilih</option>' + db.kelas.map(k => `<option value="${k}">${k}</option>`).join('');
-            document.getElementById('nilai-filter-mapel').innerHTML = '<option value="">Pilih</option>' + db.mapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
-        }
-        
-        window.autoLoadNilai = function() {
-            const k = document.getElementById('nilai-filter-kelas').value;
-            const m = document.getElementById('nilai-filter-mapel').value;
-            if(k && m) setTimeout(() => document.getElementById('btn-load-nilai').click(), 50);
-            else {
-                document.getElementById('nilai-tbody').innerHTML = '<tr><td colspan="10" class="p-4 text-center text-xs text-gray-400">Pilih filter lalu klik Tampilkan.</td></tr>';
-                document.getElementById('nilai-actions').classList.add('hidden');
-            }
-        };
-
-        window.handleGuruSelection = function() {
-            const g = db.guru.find(x => String(x.id) === document.getElementById('nilai-filter-guru').value);
-            if(g && g.jabatan === 'Wali Kelas') { document.getElementById('nilai-filter-kelas').value = g.tugas; }
-            else if(g && g.jabatan === 'Guru Mapel') { const m = db.mapel.find(x => x.nama === g.tugas); if(m) document.getElementById('nilai-filter-mapel').value = m.id; }
-            autoLoadNilai();
-        };
-        
-        window.confirmBulkDeleteNilai = function() {
-            openConfirm("Apakah Anda yakin ingin mereset/menghapus semua nilai?", async () => { 
-                db.nilai = {}; 
-                await saveToSheets(); 
-                autoLoadNilai(); 
-            }); 
-        };
-
-        document.getElementById('btn-load-nilai').onclick = () => {
-            const k = document.getElementById('nilai-filter-kelas').value, m = document.getElementById('nilai-filter-mapel').value, s = document.getElementById('nilai-filter-semester').value;
-            if(!k || !m) return;
-            let cols = (currentPenilaianType === 'sts' || currentPenilaianType === 'sas') ? 1 : (parseInt(document.getElementById('nilai-filter-ke').value) || 5);
-            let h = `<tr><th class="px-3 py-2 sticky-col border-r bg-gray-50 z-10 w-24 md:w-48 text-left">Nama</th>`;
-            for(let i=1;i<=cols;i++) h += `<th class="px-2 py-2 text-center min-w-[60px]">${cols===1?'Nilai':'K-'+i}</th>`; h += `</tr>`;
-            document.getElementById('nilai-thead').innerHTML = h;
-            
-            let b = '';
-            db.siswa.filter(x=>x.kelas===k).forEach(sis => {
-                b += `<tr class="border-b"><td class="px-3 py-2 font-bold text-xs sticky-col border-r border-gray-100 bg-white truncate max-w-[120px] md:max-w-none">${sis.nama}</td>`;
-                for(let i=1;i<=cols;i++) {
-                    let key = `${sis.id}_${m}_${currentPenilaianType}_${s}_${i}`;
-                    b += `<td class="px-2 py-1 text-center"><input type="number" class="v-nil w-12 border rounded text-center p-1 text-xs focus:ring-1 focus:ring-primary outline-none" data-k="${key}" value="${db.nilai[key]!==undefined?db.nilai[key]:''}"></td>`;
-                } b += `</tr>`;
-            });
-            document.getElementById('nilai-tbody').innerHTML = b; document.getElementById('nilai-actions').classList.remove('hidden');
-        };
-        document.getElementById('btn-save-nilai').onclick = async () => {
-            document.querySelectorAll('.v-nil').forEach(i => { if(i.value==='') delete db.nilai[i.dataset.k]; else db.nilai[i.dataset.k] = Number(i.value); });
-            await saveToSheets(); alert("Nilai tersimpan.");
         };
 
         // --- Laporan ---
@@ -915,8 +963,8 @@
                 }
                 let rh = ch?Math.round(th/ch):0, ru = cu?Math.round(tu/cu):0, sts = db.nilai[`${sis.id}_${m}_sts_${s}_1`]||0, sas = db.nilai[`${sis.id}_${m}_sas_${s}_1`]||0;
                 let akhir = Math.round((rh*w.h)+(ru*w.u)+(sts*w.t)+(sas*w.a));
-                b += `<tr class="border-b"><td class="px-3 py-2 text-xs font-bold sticky-col border-r border-blue-100">${sis.nama}</td><td class="text-center">${rh}</td><td class="text-center">${ru}</td><td class="text-center">${sts}</td><td class="text-center">${sas}</td><td class="text-center font-bold text-blue-700 bg-blue-50">${akhir}</td></tr>`;
-            }); document.getElementById('rekap-tbody').innerHTML = b;
+                b += `<tr class="border-b"><td class="px-3 py-2 text-xs font-bold sticky-col border-r border-blue-100 bg-white truncate max-w-[120px] md:max-w-none">${sis.nama}</td><td class="text-center">${rh}</td><td class="text-center">${ru}</td><td class="text-center">${sts}</td><td class="text-center">${sas}</td><td class="text-center font-bold text-blue-700 bg-blue-50">${akhir}</td></tr>`;
+            }); document.getElementById('rekap-tbody').innerHTML = b || '<tr><td colspan="6" class="text-center p-4">Kosong.</td></tr>';
         };
 
         function setupLedgerFilter() { document.getElementById('ledger-filter-kelas').innerHTML = db.kelas.map(k=>`<option value="${k}">${k}</option>`).join(''); }
@@ -933,17 +981,16 @@
                     let akhir = Math.round((rh*0.4)+(ru*0.3)+(sts*0.15)+(sas*0.15));
                     b += `<td class="text-center border-l">${akhir||'-'}</td>`;
                 }); b += `</tr>`;
-            }); document.getElementById('ledger-tbody').innerHTML = b;
+            }); document.getElementById('ledger-tbody').innerHTML = b || '<tr><td class="p-4 text-center">Kosong.</td></tr>';
         };
 
         // Document Ready Fixes
         document.addEventListener('DOMContentLoaded', () => {
-            // Prevent body scroll on mobile when modal open
             const dtSearch = document.getElementById('dt-search');
-            if (dtSearch) dtSearch.addEventListener('input', renderDataTable);
+            if (dtSearch) dtSearch.addEventListener('input', window.renderDataTable);
             
             const dtFilter = document.getElementById('dt-filter');
-            if (dtFilter) dtFilter.addEventListener('change', renderDataTable);
+            if (dtFilter) dtFilter.addEventListener('change', window.renderDataTable);
         });
     </script>
 </body>
