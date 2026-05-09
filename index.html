@@ -143,7 +143,12 @@
                 </div>
                 <div class="text-left">
                     <label class="text-[10px] md:text-xs font-bold text-gray-400 uppercase ml-1">Password</label>
-                    <input type="password" id="password" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary mt-1 text-sm" placeholder="Masukkan password">
+                    <div class="relative mt-1">
+                        <input type="password" id="password" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm pr-12" placeholder="Masukkan password">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary transition-colors focus:outline-none">
+                            <i data-lucide="eye" id="toggle-password-icon" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg mt-2 text-sm md:text-base">Masuk Aplikasi</button>
             </form>
@@ -272,7 +277,6 @@
                             <button id="btn-add-data" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center"><i data-lucide="plus" class="w-3 h-3 mr-1"></i> Tambah</button>
                         </div>
                     </div>
-                    <!-- Wraper overflow-x-auto untuk layar HP -->
                     <div class="bg-white rounded-xl shadow-sm border flex-1 flex flex-col overflow-hidden">
                         <div class="overflow-x-auto overflow-y-auto flex-1 w-full relative">
                             <table class="min-w-[600px] md:min-w-full divide-y divide-gray-200">
@@ -548,7 +552,20 @@
             catch (e) { hideProcessing(); alert("Gagal menyimpan."); }
         }
 
-        // Auth
+        // Auth & Toggle Password
+        window.togglePasswordVisibility = function() {
+            const pwdInput = document.getElementById('password');
+            const pwdIcon = document.getElementById('toggle-password-icon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                pwdIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                pwdInput.type = 'password';
+                pwdIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        };
+
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const r = document.getElementById('login-role').value;
@@ -833,7 +850,6 @@
                 const m = document.getElementById('nilai-filter-mapel').value;
                 const s = document.getElementById('nilai-filter-semester').value;
                 
-                // Hapus hanya nilai yang sesuai filter (Siswa di kelas K, Mapel M, Tipe Penilaian T, Semester S)
                 db.siswa.filter(sis => sis.kelas === k).forEach(sis => {
                     for(let key in db.nilai) {
                         if(key.startsWith(`${sis.id}_${m}_${currentPenilaianType}_${s}_`)) {
