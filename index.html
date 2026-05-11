@@ -220,7 +220,7 @@
             </header>
 
             <!-- CONTENT AREA -->
-            <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 relative">
+            <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-6 pb-28 md:pb-6 relative flex flex-col">
                 
                 <!-- Local Processing Overlay -->
                 <div id="local-loading" class="absolute inset-0 bg-white/50 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
@@ -285,15 +285,16 @@
                         </button>
                     </div>
                     
-                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
-                        <div class="bg-blue-50 px-3 py-2 flex justify-between items-center border-b">
+                    <!-- Perbaikan Layout Presensi: Penambahan min-h-0 -->
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col min-h-0">
+                        <div class="bg-blue-50 px-3 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b gap-3">
                             <h4 class="font-bold text-primary text-xs uppercase flex items-center"><i data-lucide="calendar-check" class="w-4 h-4 mr-1"></i> Data Kehadiran Siswa</h4>
-                            <div id="presensi-actions" class="hidden flex items-center gap-2">
-                                <button onclick="savePresensi()" class="bg-orange-500 text-white px-3 py-1 rounded text-xs font-bold shadow hover:bg-orange-600">SIMPAN PRESENSI</button>
+                            <div id="presensi-actions" class="hidden flex w-full sm:w-auto items-center gap-2 mt-2 sm:mt-0">
+                                <button onclick="savePresensi()" class="w-full sm:w-auto bg-orange-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow hover:bg-orange-600 transition-colors">SIMPAN PRESENSI</button>
                             </div>
                         </div>
-                        <div class="overflow-x-auto overflow-y-auto flex-1 w-full relative">
-                            <table class="min-w-[600px] md:min-w-full divide-y">
+                        <div class="overflow-x-auto overflow-y-auto flex-1 w-full relative pb-10">
+                            <table class="w-full min-w-full divide-y">
                                 <thead class="bg-gray-50 text-[10px] font-bold uppercase text-gray-500 sticky top-0 z-20" id="presensi-thead"></thead>
                                 <tbody id="presensi-tbody" class="divide-y text-sm"></tbody>
                             </table>
@@ -919,25 +920,27 @@
                 const date = document.getElementById('presensi-date').value;
                 if(!date) return alert("Pilih tanggal!");
                 
-                thead = `<tr><th class="px-3 py-2 text-left w-10">No</th><th class="px-3 py-2 text-left sticky-col bg-gray-50 z-10 border-r border-gray-200 min-w-[150px]">Nama Siswa</th><th class="px-3 py-2 text-center text-green-600">Hadir</th><th class="px-3 py-2 text-center text-blue-600">Sakit</th><th class="px-3 py-2 text-center text-yellow-600">Izin</th><th class="px-3 py-2 text-center text-red-600">Alpa</th></tr>`;
+                // Ubah header agar muat di 1 layar HP dengan singkatan H, S, I, A
+                thead = `<tr><th class="px-1 sm:px-3 py-2 text-left w-6 sm:w-10">No</th><th class="px-1 sm:px-3 py-2 text-left sticky-col bg-gray-50 z-10 border-r border-gray-200">Nama</th><th class="px-1 sm:px-3 py-2 text-center text-green-600">H</th><th class="px-1 sm:px-3 py-2 text-center text-blue-600">S</th><th class="px-1 sm:px-3 py-2 text-center text-yellow-600">I</th><th class="px-1 sm:px-3 py-2 text-center text-red-600">A</th></tr>`;
                 
                 siswaKelas.forEach((s, i) => {
                     const key = `${s.id}_${date}`;
                     const val = db.presensi && db.presensi[key] ? db.presensi[key] : 'H'; // Default Hadir
                     
+                    // Kecilkan font, padding, dan atur wrap text agar tidak meluber ke samping di HP
                     tbody += `<tr class="border-b hover:bg-gray-50">
-                        <td class="px-3 py-2 text-xs text-gray-500">${i+1}</td>
-                        <td class="px-3 py-2 text-xs font-bold sticky-col bg-white border-r border-gray-100 truncate">${s.nama}</td>
-                        <td class="px-3 py-2 text-center"><input type="radio" name="pres_${s.id}" value="H" class="pres-radio w-4 h-4 cursor-pointer" ${val==='H'?'checked':''} data-key="${key}"></td>
-                        <td class="px-3 py-2 text-center"><input type="radio" name="pres_${s.id}" value="S" class="pres-radio w-4 h-4 cursor-pointer" ${val==='S'?'checked':''} data-key="${key}"></td>
-                        <td class="px-3 py-2 text-center"><input type="radio" name="pres_${s.id}" value="I" class="pres-radio w-4 h-4 cursor-pointer" ${val==='I'?'checked':''} data-key="${key}"></td>
-                        <td class="px-3 py-2 text-center"><input type="radio" name="pres_${s.id}" value="A" class="pres-radio w-4 h-4 cursor-pointer" ${val==='A'?'checked':''} data-key="${key}"></td>
+                        <td class="px-1 sm:px-3 py-2 sm:py-3 text-[9px] sm:text-xs text-gray-500">${i+1}</td>
+                        <td class="px-1 sm:px-3 py-2 sm:py-3 text-[9px] sm:text-xs font-bold sticky-col bg-white border-r border-gray-100 whitespace-normal sm:truncate leading-tight break-words">${s.nama}</td>
+                        <td class="px-1 sm:px-3 py-2 sm:py-3 text-center"><input type="radio" name="pres_${s.id}" value="H" class="pres-radio w-3.5 h-3.5 sm:w-5 sm:h-5 cursor-pointer accent-green-600" ${val==='H'?'checked':''} data-key="${key}"></td>
+                        <td class="px-1 sm:px-3 py-2 sm:py-3 text-center"><input type="radio" name="pres_${s.id}" value="S" class="pres-radio w-3.5 h-3.5 sm:w-5 sm:h-5 cursor-pointer accent-blue-600" ${val==='S'?'checked':''} data-key="${key}"></td>
+                        <td class="px-1 sm:px-3 py-2 sm:py-3 text-center"><input type="radio" name="pres_${s.id}" value="I" class="pres-radio w-3.5 h-3.5 sm:w-5 sm:h-5 cursor-pointer accent-yellow-600" ${val==='I'?'checked':''} data-key="${key}"></td>
+                        <td class="px-1 sm:px-3 py-2 sm:py-3 text-center"><input type="radio" name="pres_${s.id}" value="A" class="pres-radio w-3.5 h-3.5 sm:w-5 sm:h-5 cursor-pointer accent-red-600" ${val==='A'?'checked':''} data-key="${key}"></td>
                     </tr>`;
                 });
                 document.getElementById('presensi-actions').classList.remove('hidden');
             } else {
-                // Rekap Logic
-                thead = `<tr><th class="px-3 py-2 text-left w-10">No</th><th class="px-3 py-2 text-left sticky-col bg-gray-50 z-10 border-r border-gray-200 min-w-[150px]">Nama Siswa</th><th class="px-3 py-2 text-center text-green-600 uppercase">Hadir (H)</th><th class="px-3 py-2 text-center text-blue-600 uppercase">Sakit (S)</th><th class="px-3 py-2 text-center text-yellow-600 uppercase">Izin (I)</th><th class="px-3 py-2 text-center text-red-600 uppercase">Alpa (A)</th></tr>`;
+                // Rekap Logic (juga disesuaikan ukuran fontnya untuk HP)
+                thead = `<tr><th class="px-1 sm:px-3 py-2 text-left w-6 sm:w-10">No</th><th class="px-1 sm:px-3 py-2 text-left sticky-col bg-gray-50 z-10 border-r border-gray-200">Nama</th><th class="px-1 sm:px-3 py-2 text-center text-green-600 uppercase text-[9px] sm:text-[10px]">H</th><th class="px-1 sm:px-3 py-2 text-center text-blue-600 uppercase text-[9px] sm:text-[10px]">S</th><th class="px-1 sm:px-3 py-2 text-center text-yellow-600 uppercase text-[9px] sm:text-[10px]">I</th><th class="px-1 sm:px-3 py-2 text-center text-red-600 uppercase text-[9px] sm:text-[10px]">A</th></tr>`;
                 document.getElementById('presensi-actions').classList.add('hidden'); // Sembunyikan tombol simpan saat rekap
                 
                 siswaKelas.forEach((s, i) => {
@@ -969,12 +972,12 @@
                     }
 
                     tbody += `<tr class="border-b hover:bg-gray-50">
-                        <td class="px-3 py-2 text-xs text-gray-500">${i+1}</td>
-                        <td class="px-3 py-2 text-xs font-bold sticky-col bg-white border-r border-gray-100 truncate">${s.nama}</td>
-                        <td class="px-3 py-2 text-center font-bold text-green-700 bg-green-50">${h}</td>
-                        <td class="px-3 py-2 text-center font-bold text-blue-700 bg-blue-50">${sk}</td>
-                        <td class="px-3 py-2 text-center font-bold text-yellow-700 bg-yellow-50">${iz}</td>
-                        <td class="px-3 py-2 text-center font-bold text-red-700 bg-red-50">${a}</td>
+                        <td class="px-1 sm:px-3 py-2 text-[9px] sm:text-xs text-gray-500">${i+1}</td>
+                        <td class="px-1 sm:px-3 py-2 text-[9px] sm:text-xs font-bold sticky-col bg-white border-r border-gray-100 whitespace-normal sm:truncate leading-tight break-words">${s.nama}</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-green-700 bg-green-50 text-[10px] sm:text-sm">${h}</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-blue-700 bg-blue-50 text-[10px] sm:text-sm">${sk}</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-yellow-700 bg-yellow-50 text-[10px] sm:text-sm">${iz}</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-red-700 bg-red-50 text-[10px] sm:text-sm">${a}</td>
                     </tr>`;
                 });
             }
