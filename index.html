@@ -1597,23 +1597,79 @@
             if(!k) return alert("Pilih kelas.");
 
             const arrMapel = getAvailableMapel();
+            
+            // Tambahkan Header Kolom Jumlah, Rata-rata, dan Rank
             let h = `<tr><th class="px-2 py-2 w-8 text-center sticky-col bg-gray-800 border-r border-gray-600">No</th><th class="px-3 py-2 sticky-col bg-gray-800 border-r border-gray-600 text-left" style="left:32px;">Nama</th>`; 
-            arrMapel.forEach(m => h+=`<th class="px-2 py-2 min-w-[50px] border-l border-gray-600">${m.kode}</th>`); h+=`</tr>`;
+            arrMapel.forEach(m => h+=`<th class="px-2 py-2 min-w-[50px] border-l border-gray-600">${m.kode}</th>`); 
+            h += `<th class="px-2 py-2 min-w-[60px] border-l border-gray-600 bg-blue-900">Jumlah</th><th class="px-2 py-2 min-w-[60px] border-l border-gray-600 bg-blue-900">Rata2</th><th class="px-2 py-2 min-w-[50px] border-l border-gray-600 bg-orange-700">Rank</th></tr>`;
             document.getElementById('ledger-thead').innerHTML = h; 
+            
             let b = '';
 
-            let index = 1;
+            // Ambil bobot inputan yang sama dengan menu Rekap (Harian, Ulangan, STS, SAS)
+            const w = { 
+                h: Number(document.getElementById('weight-harian').value)/100, 
+                u: Number(document.getElementById('weight-ulangan').value)/100, 
+                t: Number(document.getElementById('weight-sts').value)/100, 
+                a: Number(document.getElementById('weight-sas').value)/100 
+            };
+
+            let dataSiswa = [];
             db.siswa.filter(x=>x.kelas===k).forEach(sis => {
-                b += `<tr class="border-b"><td class="px-2 py-2 text-center sticky-col border-r border-gray-200 bg-white">${index++}</td><td class="px-3 py-2 sticky-col font-bold border-r border-gray-200 bg-white truncate max-w-[120px] md:max-w-none" style="left:32px;">${sis.nama}</td>`;
+                let mapelScores = {};
+                let totalAkhir = 0;
+                let countMapel = 0;
+
                 arrMapel.forEach(m => {
                     let th=0, ch=0, tu=0, cu=0;
-                    for(let key in db.nilai) { if(key.startsWith(`${sis.id}_${m.id}_harian_${s}_`)){th+=db.nilai[key];ch++;} if(key.startsWith(`${sis.id}_${m.id}_ulangan_${s}_`)){tu+=db.nilai[key];cu++;} }
+                    for(let key in db.nilai) { 
+                        if(key.startsWith(`${sis.id}_${m.id}_harian_${s}_`)){th+=db.nilai[key];ch++;} 
+                        if(key.startsWith(`${sis.id}_${m.id}_ulangan_${s}_`)){tu+=db.nilai[key];cu++;} 
+                    }
                     let rh=ch?Math.round(th/ch):0, ru=cu?Math.round(tu/cu):0, sts=db.nilai[`${sis.id}_${m.id}_sts_${s}_1`]||0, sas=db.nilai[`${sis.id}_${m.id}_sas_${s}_1`]||0;
-                    let akhir = Math.round((rh*0.4)+(ru*0.3)+(sts*0.15)+(sas*0.15));
-                    b += `<td class="text-center border-l">${akhir||'-'}</td>`;
-                }); b += `</tr>`;
+                    
+                    // Perhitungan disamakan dengan Rekap menggunakan bobot inputan
+                    let akhir = Math.round((rh*w.h)+(ru*w.u)+(sts*w.t)+(sas*w.a));
+                    
+                    mapelScores[m.id] = akhir;
+                    totalAkhir += akhir;
+                    countMapel++;
+                }); 
+                
+                let rataRata = countMapel ? Math.round(totalAkhir / countMapel) : 0;
+                dataSiswa.push({ sis: sis, scores: mapelScores, total: totalAkhir, avg: rataRata });
             }); 
-            document.getElementById('ledger-tbody').innerHTML = b || '<tr><td colspan="20" class="p-4 text-center">Kosong.</td></tr>';
+
+            // Hitung Ranking (berdasarkan total nilai terbesar ke terkecil)
+            dataSiswa.sort((a, b) => b.total - a.total);
+            for(let i=0; i<dataSiswa.length; i++) {
+                if(i > 0 && dataSiswa[i].total === dataSiswa[i-1].total) {
+                    dataSiswa[i].rank = dataSiswa[i-1].rank; // Nilai kembar dapat ranking sama
+                } else {
+                    dataSiswa[i].rank = i + 1;
+                }
+            }
+
+            // Kembalikan urutan berdasarkan abjad nama untuk tampilan Ledger
+            dataSiswa.sort((a, b) => a.sis.nama.localeCompare(b.sis.nama));
+
+            let index = 1;
+            dataSiswa.forEach(ds => {
+                b += `<tr class="border-b"><td class="px-2 py-2 text-center sticky-col border-r border-gray-200 bg-white">${index++}</td><td class="px-3 py-2 sticky-col font-bold border-r border-gray-200 bg-white truncate max-w-[120px] md:max-w-none" style="left:32px;">${ds.sis.nama}</td>`;
+                
+                // Print nilai per mapel
+                arrMapel.forEach(m => {
+                    let akhir = ds.scores[m.id];
+                    b += `<td class="text-center border-l">${akhir||'-'}</td>`;
+                }); 
+
+                // Print Jumlah, Rata-rata, dan Rank
+                b += `<td class="text-center border-l font-bold text-blue-800 bg-blue-50">${ds.total}</td>
+                      <td class="text-center border-l font-bold text-blue-800 bg-blue-50">${ds.avg}</td>
+                      <td class="text-center border-l font-bold text-orange-800 bg-orange-50">${ds.rank}</td></tr>`;
+            }); 
+            
+            document.getElementById('ledger-tbody').innerHTML = b || `<tr><td colspan="${arrMapel.length + 5}" class="p-4 text-center">Kosong.</td></tr>`;
 
             const actions = document.getElementById('ledger-actions');
             if (actions) {
