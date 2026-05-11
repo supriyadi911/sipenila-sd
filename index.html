@@ -109,7 +109,7 @@
             <div class="relative hidden lg:flex justify-center items-center fade-in" style="animation-delay: 0.2s;">
                 <div class="w-1/2 bg-blue-600 rounded-3xl p-3 shadow-2xl rotate-3 transform hover:rotate-0 transition-transform duration-500">
                     <div class="bg-white rounded-2xl p-1.5 shadow-inner">
-                        <img src="https://i.ibb.co.com/pjPVkN8v/foto-biru-supriyadi.png" alt="Foto Supriyadi" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/500x400?text=Image+Not+Found';">
+                        <img src="https://i.ibb.co.com/QF6wzZm3/sipenila-foto.png" alt="Preview SIPENILA" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/500x400?text=Image+Not+Found';">
                     </div>
                 </div>
             </div>
@@ -227,7 +227,17 @@
                         <div class="absolute top-0 right-0 p-4 md:p-8 opacity-5"><i data-lucide="graduation-cap" class="w-32 h-32 md:w-48 md:h-48"></i></div>
                         <div class="relative z-10 max-w-3xl">
                             <h1 class="text-xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight" id="welcome-text">Panel Admin</h1>
-                            <p class="text-sm md:text-lg text-gray-600 mb-4 md:mb-6">Kelola data siswa dan penilaian dengan mudah.</p>
+                            <p class="text-sm md:text-lg text-gray-600 mb-4 md:mb-6" id="dashboard-desc">Kelola data siswa dan penilaian dengan mudah.</p>
+                            
+                            <!-- Biodata Guru (Hanya tampil saat role = guru) -->
+                            <div id="biodata-guru" class="hidden mb-6 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-100 shadow-sm inline-block min-w-[280px]">
+                                <table class="text-sm text-gray-700">
+                                    <tr><td class="font-bold pr-4 py-1 text-gray-500">Nama Guru</td><td>: <span id="bio-nama" class="font-semibold text-gray-900"></span></td></tr>
+                                    <tr><td class="font-bold pr-4 py-1 text-gray-500">NIP</td><td>: <span id="bio-nip" class="font-mono text-gray-900"></span></td></tr>
+                                    <tr><td class="font-bold pr-4 py-1 text-gray-500">Tugas / Kelas</td><td>: <span id="bio-tugas" class="font-semibold text-primary"></span></td></tr>
+                                </table>
+                            </div>
+
                             <div class="flex items-center space-x-2 text-blue-600 bg-blue-50 inline-flex p-2 rounded-lg">
                                 <i data-lucide="cloud" class="w-4 h-4"></i><span class="text-xs font-bold">Sinkronisasi Cloud Aktif</span>
                             </div>
@@ -237,19 +247,19 @@
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                         <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-start md:items-center md:space-x-4">
                             <div class="p-2 md:p-3 bg-blue-100 text-blue-600 rounded-xl mb-2 md:mb-0"><i data-lucide="users" class="w-5 h-5 md:w-8 md:h-8"></i></div>
-                            <div><p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Siswa</p><h3 class="text-xl md:text-2xl font-bold" id="stat-siswa">0</h3></div>
+                            <div><p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase" id="label-stat-siswa">Siswa</p><h3 class="text-xl md:text-2xl font-bold" id="stat-siswa">0</h3></div>
                         </div>
-                        <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-start md:items-center md:space-x-4">
+                        <div id="card-guru" class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-start md:items-center md:space-x-4">
                             <div class="p-2 md:p-3 bg-green-100 text-green-600 rounded-xl mb-2 md:mb-0"><i data-lucide="user-check" class="w-5 h-5 md:w-8 md:h-8"></i></div>
                             <div><p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Guru</p><h3 class="text-xl md:text-2xl font-bold" id="stat-guru">0</h3></div>
                         </div>
-                        <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-start md:items-center md:space-x-4">
+                        <div id="card-mapel" class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-start md:items-center md:space-x-4">
                             <div class="p-2 md:p-3 bg-purple-100 text-purple-600 rounded-xl mb-2 md:mb-0"><i data-lucide="book-copy" class="w-5 h-5 md:w-8 md:h-8"></i></div>
                             <div><p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Mapel</p><h3 class="text-xl md:text-2xl font-bold" id="stat-mapel">0</h3></div>
                         </div>
                         <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-start md:items-center md:space-x-4">
                             <div class="p-2 md:p-3 bg-orange-100 text-orange-600 rounded-xl mb-2 md:mb-0"><i data-lucide="database" class="w-5 h-5 md:w-8 md:h-8"></i></div>
-                            <div><p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Entri Nilai</p><h3 class="text-xl md:text-2xl font-bold" id="stat-nilai">0</h3></div>
+                            <div><p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase" id="label-stat-nilai">Entri Nilai</p><h3 class="text-xl md:text-2xl font-bold" id="stat-nilai">0</h3></div>
                         </div>
                     </div>
                 </div>
@@ -777,10 +787,68 @@
         }
 
         function renderDashboard() { 
-            document.getElementById('stat-siswa').textContent = db.siswa ? db.siswa.length : 0;
-            document.getElementById('stat-guru').textContent = db.guru ? db.guru.length : 0;
-            document.getElementById('stat-mapel').textContent = db.mapel ? db.mapel.length : 0;
-            document.getElementById('stat-nilai').textContent = db.nilai ? Object.keys(db.nilai).length : 0;
+            if (userRole === 'guru' && loggedInGuru) {
+                // Tampilan Khusus Guru
+                document.getElementById('dashboard-desc').classList.add('hidden');
+                document.getElementById('biodata-guru').classList.remove('hidden');
+                
+                document.getElementById('bio-nama').textContent = loggedInGuru.nama || '-';
+                document.getElementById('bio-nip').textContent = loggedInGuru.nip || '-';
+                document.getElementById('bio-tugas').textContent = (loggedInGuru.jabatan || '') + ' (' + (loggedInGuru.tugas || '') + ')';
+
+                // Sembunyikan card Total Guru dan Mapel
+                document.getElementById('card-guru').classList.add('hidden');
+                document.getElementById('card-mapel').classList.add('hidden');
+
+                // Statistik Siswa (Hanya yg diajar)
+                let mySiswaCount = 0;
+                let labelSiswa = "Siswa";
+                if (loggedInGuru.jabatan === 'Wali Kelas') {
+                    mySiswaCount = db.siswa ? db.siswa.filter(s => s.kelas === loggedInGuru.tugas).length : 0;
+                    labelSiswa = "Siswa Kelas " + loggedInGuru.tugas;
+                } else {
+                    mySiswaCount = db.siswa ? db.siswa.length : 0;
+                    labelSiswa = "Siswa Diajar";
+                }
+                document.getElementById('stat-siswa').textContent = mySiswaCount;
+                document.getElementById('label-stat-siswa').textContent = labelSiswa;
+
+                // Statistik Entri Nilai (Hanya yg diinput oleh guru ini)
+                let myNilaiCount = 0;
+                if (db.nilai) {
+                    const mapelObj = db.mapel.find(m => m.nama === loggedInGuru.tugas);
+                    const mapelId = mapelObj ? String(mapelObj.id) : null;
+
+                    for (let key in db.nilai) {
+                        const parts = key.split('_'); // Format: sid_mid_type_sem_col
+                        if (loggedInGuru.jabatan === 'Wali Kelas') {
+                            const sis = db.siswa.find(s => s.id === parts[0]);
+                            if (sis && sis.kelas === loggedInGuru.tugas) myNilaiCount++;
+                        } else if (loggedInGuru.jabatan === 'Guru Mapel') {
+                            if (parts[1] === mapelId) myNilaiCount++;
+                        }
+                    }
+                }
+                document.getElementById('stat-nilai').textContent = myNilaiCount;
+                document.getElementById('label-stat-nilai').textContent = "Nilai Diinput";
+
+            } else {
+                // Tampilan Khusus Admin
+                document.getElementById('dashboard-desc').classList.remove('hidden');
+                document.getElementById('biodata-guru').classList.add('hidden');
+
+                document.getElementById('card-guru').classList.remove('hidden');
+                document.getElementById('card-mapel').classList.remove('hidden');
+
+                document.getElementById('stat-siswa').textContent = db.siswa ? db.siswa.length : 0;
+                document.getElementById('label-stat-siswa').textContent = "Total Siswa";
+
+                document.getElementById('stat-guru').textContent = db.guru ? db.guru.length : 0;
+                document.getElementById('stat-mapel').textContent = db.mapel ? db.mapel.length : 0;
+
+                document.getElementById('stat-nilai').textContent = db.nilai ? Object.keys(db.nilai).length : 0;
+                document.getElementById('label-stat-nilai').textContent = "Total Entri Nilai";
+            }
         }
 
         // --- Data Table Master & CRUD Actions ---
