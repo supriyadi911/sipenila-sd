@@ -106,17 +106,10 @@
                     </button>
                 </div>
             </div>
-            <div class="relative hidden lg:block fade-in" style="animation-delay: 0.2s;">
-                <div class="bg-blue-600 rounded-3xl p-4 shadow-2xl rotate-3 transform hover:rotate-0 transition-transform duration-500">
-                    <div class="bg-white rounded-2xl p-6 shadow-inner">
-                        <div class="flex items-center justify-between mb-4 border-b pb-4">
-                            <div class="font-bold text-gray-800">Preview Dashboard</div>
-                            <div class="flex space-x-1"><div class="w-3 h-3 rounded-full bg-red-400"></div><div class="w-3 h-3 rounded-full bg-yellow-400"></div><div class="w-3 h-3 rounded-full bg-green-400"></div></div>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="h-8 bg-gray-100 rounded w-3/4"></div>
-                            <div class="grid grid-cols-3 gap-2"><div class="h-20 bg-blue-50 rounded"></div><div class="h-20 bg-green-50 rounded"></div><div class="h-20 bg-purple-50 rounded"></div></div>
-                        </div>
+            <div class="relative hidden lg:flex justify-center items-center fade-in" style="animation-delay: 0.2s;">
+                <div class="w-1/2 bg-blue-600 rounded-3xl p-3 shadow-2xl rotate-3 transform hover:rotate-0 transition-transform duration-500">
+                    <div class="bg-white rounded-2xl p-1.5 shadow-inner">
+                        <img src="https://i.ibb.co.com/pjPVkN8v/foto-biru-supriyadi.png" alt="Foto Supriyadi" class="w-full h-auto rounded-xl object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/500x400?text=Image+Not+Found';">
                     </div>
                 </div>
             </div>
@@ -287,15 +280,12 @@
                         <div class="bg-blue-50 px-3 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b gap-3">
                             <h4 class="font-bold text-primary text-xs uppercase flex items-center"><i data-lucide="calendar-check" class="w-4 h-4 mr-1"></i> Data Kehadiran Siswa</h4>
                             <div id="presensi-actions" class="hidden flex-wrap w-full sm:w-auto items-center gap-2 mt-2 sm:mt-0">
-                                <!-- Tombol Unduh PDF -->
                                 <button id="btn-presensi-pdf" onclick="downloadPresensiPDF()" class="flex-1 sm:flex-none bg-red-500 text-white px-3 py-2 rounded-lg text-xs font-bold shadow hover:bg-red-600 transition-colors flex items-center justify-center hidden">
                                     <i data-lucide="file-text" class="w-4 h-4 mr-1"></i> UNDUH PDF
                                 </button>
-                                <!-- Tombol Kirim WhatsApp -->
                                 <button id="btn-presensi-wa" onclick="sendPresensiWA()" class="flex-1 sm:flex-none bg-green-500 text-white px-3 py-2 rounded-lg text-xs font-bold shadow hover:bg-green-600 transition-colors flex items-center justify-center">
                                     <i data-lucide="message-circle" class="w-4 h-4 mr-1"></i> KIRIM WA
                                 </button>
-                                <!-- Tombol Simpan Presensi -->
                                 <button id="btn-presensi-simpan" onclick="savePresensi()" class="flex-1 sm:flex-none w-full sm:w-auto bg-orange-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow hover:bg-orange-600 transition-colors">
                                     SIMPAN PRESENSI
                                 </button>
@@ -324,7 +314,6 @@
                             <input type="file" id="dt-import-file" accept=".xlsx" class="hidden" onchange="importMasterExcel(event)">
                             <label for="dt-import-file" class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer flex items-center hover:bg-green-200 transition-colors m-0"><i data-lucide="upload" class="w-3 h-3 mr-1"></i> Import</label>
                             <button id="btn-add-data" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center"><i data-lucide="plus" class="w-3 h-3 mr-1"></i> Tambah</button>
-                            <!-- Tombol Simpan Manual -->
                             <button onclick="saveMasterDataManual()" class="bg-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center hover:bg-orange-600 transition-colors shadow-sm"><i data-lucide="save" class="w-3 h-3 mr-1"></i> Simpan</button>
                         </div>
                     </div>
@@ -410,11 +399,18 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
-                        <div class="overflow-x-auto flex-1 w-full relative">
-                            <table class="min-w-[500px] md:min-w-full divide-y">
-                                <thead class="bg-primary text-white text-[10px] uppercase sticky top-0">
-                                    <tr><th class="px-3 py-2 text-left sticky-col bg-primary border-r border-blue-600">Siswa</th><th class="px-2 py-2 text-center">Har</th><th class="px-2 py-2 text-center">Ulg</th><th class="px-2 py-2 text-center">STS</th><th class="px-2 py-2 text-center">SAS</th><th class="px-2 py-2 text-center bg-blue-800">Akhir</th></tr>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col min-h-0">
+                        <div class="bg-blue-50 px-3 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b gap-3">
+                            <h4 class="font-bold text-primary text-xs uppercase flex items-center"><i data-lucide="clipboard-list" class="w-4 h-4 mr-1"></i> Data Rekap Nilai</h4>
+                            <div id="rekap-actions" class="hidden flex-wrap w-full sm:w-auto items-center gap-2 mt-2 sm:mt-0">
+                                <button onclick="exportRekapPDF()" class="flex-1 sm:flex-none bg-red-500 text-white px-3 py-2 rounded-lg text-[10px] font-bold shadow hover:bg-red-600 transition-colors flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i> UNDUH PDF</button>
+                                <button onclick="exportRekapExcel()" class="flex-1 sm:flex-none bg-green-600 text-white px-3 py-2 rounded-lg text-[10px] font-bold shadow hover:bg-green-700 transition-colors flex items-center justify-center"><i data-lucide="file-spreadsheet" class="w-3 h-3 mr-1"></i> UNDUH EXCEL</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto flex-1 w-full relative pb-10">
+                            <table class="min-w-[500px] md:min-w-full divide-y" id="table-rekap">
+                                <thead class="bg-primary text-white text-[10px] uppercase sticky top-0 z-20">
+                                    <tr><th class="px-2 py-2 text-center w-8 sticky-col bg-primary border-r border-blue-600">No</th><th class="px-3 py-2 text-left sticky-col bg-primary border-r border-blue-600" style="left: 32px;">Siswa</th><th class="px-2 py-2 text-center">Har</th><th class="px-2 py-2 text-center">Ulg</th><th class="px-2 py-2 text-center">STS</th><th class="px-2 py-2 text-center">SAS</th><th class="px-2 py-2 text-center bg-blue-800">Akhir</th></tr>
                                 </thead>
                                 <tbody id="rekap-tbody" class="divide-y text-xs"></tbody>
                             </table>
@@ -431,8 +427,15 @@
                     </div>
                     <button id="btn-load-ledger-mob" onclick="document.getElementById('btn-load-ledger').click()" class="md:hidden bg-primary text-white py-2 mb-4 rounded text-xs font-bold w-full">Tampilkan Ledger</button>
 
-                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col">
-                        <div class="overflow-x-auto overflow-y-auto flex-1 w-full relative">
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col min-h-0">
+                        <div class="bg-blue-50 px-3 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b gap-3">
+                            <h4 class="font-bold text-primary text-xs uppercase flex items-center"><i data-lucide="table-2" class="w-4 h-4 mr-1"></i> Data Ledger Kelas</h4>
+                            <div id="ledger-actions" class="hidden flex-wrap w-full sm:w-auto items-center gap-2 mt-2 sm:mt-0">
+                                <button onclick="exportLedgerPDF()" class="flex-1 sm:flex-none bg-red-500 text-white px-3 py-2 rounded-lg text-[10px] font-bold shadow hover:bg-red-600 transition-colors flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i> UNDUH PDF</button>
+                                <button onclick="exportLedgerExcel()" class="flex-1 sm:flex-none bg-green-600 text-white px-3 py-2 rounded-lg text-[10px] font-bold shadow hover:bg-green-700 transition-colors flex items-center justify-center"><i data-lucide="file-spreadsheet" class="w-3 h-3 mr-1"></i> UNDUH EXCEL</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto overflow-y-auto flex-1 w-full relative pb-10">
                             <table class="min-w-[800px] divide-y border-collapse" id="table-ledger">
                                 <thead class="bg-gray-800 text-white text-[10px] uppercase sticky top-0 z-20" id="ledger-thead"></thead>
                                 <tbody id="ledger-tbody" class="divide-y text-[10px]"></tbody>
@@ -496,7 +499,7 @@
         let currentTable = '';
         let currentPenilaianType = '';
         let userRole = 'admin'; 
-        let loggedInGuru = null; // Menyimpan data guru yang login
+        let loggedInGuru = null; 
 
         // UI Basic
         function showLogin() { document.getElementById('login-screen').classList.remove('hidden'); }
@@ -509,17 +512,17 @@
         // Helper Filter Data berdasarkan Role Guru
         function getAvailableKelas() {
             if (userRole === 'guru' && loggedInGuru && loggedInGuru.jabatan === 'Wali Kelas') {
-                return [loggedInGuru.tugas]; // Terkunci pada kelas tugasnya
+                return [loggedInGuru.tugas]; 
             }
-            return db.kelas; // Jika Admin atau Guru Mapel, tampilkan semua kelas
+            return db.kelas; 
         }
 
         function getAvailableMapel() {
             if (userRole === 'guru' && loggedInGuru && loggedInGuru.jabatan === 'Guru Mapel') {
                 const m = db.mapel.find(x => x.nama === loggedInGuru.tugas);
-                return m ? [m] : []; // Terkunci pada mapel yang diajarkan
+                return m ? [m] : []; 
             }
-            return db.mapel; // Jika Admin atau Wali Kelas, tampilkan semua mapel
+            return db.mapel; 
         }
 
         // Fullscreen Logic
@@ -614,19 +617,15 @@
             } catch (e) { hideLoading(); alert("Gagal terhubung ke server."); }
         }
 
-        // PERBAIKAN: Mode no-cors untuk mencegah TypeError (CORS issue) saat POST ke Apps Script
         async function saveToSheets() {
             showProcessing();
             try { 
                 await fetch(GAS_URL, { 
                     method: 'POST', 
-                    mode: 'no-cors', // Menambahkan mode no-cors
+                    mode: 'no-cors', 
                     body: JSON.stringify(db), 
                     headers: { 'Content-Type': 'text/plain' } 
                 }); 
-                
-                // Dengan mode no-cors, kita tidak bisa membaca response.ok, 
-                // sehingga kita asumsikan pengiriman berhasil jika tidak ada network error.
                 renderDashboard(); 
                 hideProcessing(); 
                 return true; 
@@ -662,7 +661,6 @@
 
             showLoading("Memverifikasi...");
             try {
-                // Selalu fetch data master terbaru saat mencoba login
                 const response = await fetch(GAS_URL);
                 db = await response.json();
                 if(!db.kelas || db.kelas.length === 0) db.kelas = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];
@@ -679,11 +677,9 @@
                 loggedInGuru = null;
                 finishLogin(err);
             } else if (r === 'guru') {
-                // Konversi input ke string, bersihkan spasi, dan abaikan huruf besar/kecil di username
                 const inputUser = String(u).trim().toLowerCase();
                 const inputPass = String(p).trim();
 
-                // Memverifikasi kredensial ke database Guru dengan konversi tipe data yang aman
                 const matchedGuru = (db.guru || []).find(x => {
                     const dbUser = x.username ? String(x.username).trim().toLowerCase() : '';
                     const dbPass = x.password ? String(x.password).trim() : '';
@@ -712,7 +708,6 @@
                 document.getElementById('sidebar-master-group').classList.add('hidden');
                 document.getElementById('mob-nav-master-btn').classList.add('hidden');
                 
-                // Pastikan properti nama aman jika tidak sengaja kosong
                 const guruName = loggedInGuru && loggedInGuru.nama ? loggedInGuru.nama : 'Guru';
                 document.getElementById('user-role-badge').textContent = "GURU: " + guruName.split(' ')[0].toUpperCase();
                 document.getElementById('welcome-text').textContent = "Panel Guru - " + guruName;
@@ -813,10 +808,9 @@
                     <td class="px-4 py-3 text-right whitespace-nowrap"><button onclick="editMaster('${s.id}')" class="text-blue-600 mr-2"><i data-lucide="edit-2" class="w-4 h-4 inline"></i></button><button onclick="confirmDeleteMaster('${s.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4 inline"></i></button></td></tr>`;
                 });
             } else if(currentTable === 'guru') {
-                // Modifikasi Tabel Guru untuk Admin: Tampilkan Username dan Password
-                h = `<tr><th class="px-4 py-2 text-left w-10"></th><th class="px-4 py-2 text-left sticky-col bg-gray-50 border-r">Nama Guru</th><th class="px-4 py-2 text-left">Jabatan</th><th class="px-4 py-2 text-left">Tugas</th><th class="px-4 py-2 text-left">Username</th><th class="px-4 py-2 text-left">Password</th><th class="px-4 py-2 text-right">Aksi</th></tr>`;
+                h = `<tr><th class="px-4 py-2 text-left w-10"></th><th class="px-4 py-2 text-left sticky-col bg-gray-50 border-r">Nama Guru</th><th class="px-4 py-2 text-left">NIP</th><th class="px-4 py-2 text-left">Jabatan</th><th class="px-4 py-2 text-left">Tugas</th><th class="px-4 py-2 text-left">Username</th><th class="px-4 py-2 text-left">Password</th><th class="px-4 py-2 text-right">Aksi</th></tr>`;
                 data.filter(g => g.nama.toLowerCase().includes(search)).forEach(g => {
-                    b += `<tr class="border-b"><td class="px-4 py-3"><input type="checkbox" class="dt-checkbox" value="${g.id}"></td><td class="px-4 py-3 font-bold sticky-col border-r border-gray-100">${g.nama}</td><td class="px-4 py-3 text-xs">${g.jabatan||'-'}</td><td class="px-4 py-3 text-xs">${g.tugas||'-'}</td><td class="px-4 py-3 text-xs text-blue-600 font-mono">${g.username||'-'}</td><td class="px-4 py-3 text-xs font-mono">${g.password||'-'}</td>
+                    b += `<tr class="border-b"><td class="px-4 py-3"><input type="checkbox" class="dt-checkbox" value="${g.id}"></td><td class="px-4 py-3 font-bold sticky-col border-r border-gray-100">${g.nama}</td><td class="px-4 py-3 text-xs">${g.nip||'-'}</td><td class="px-4 py-3 text-xs">${g.jabatan||'-'}</td><td class="px-4 py-3 text-xs">${g.tugas||'-'}</td><td class="px-4 py-3 text-xs text-blue-600 font-mono">${g.username||'-'}</td><td class="px-4 py-3 text-xs font-mono">${g.password||'-'}</td>
                     <td class="px-4 py-3 text-right whitespace-nowrap"><button onclick="editMaster('${g.id}')" class="text-blue-600 mr-2"><i data-lucide="edit-2" class="w-4 h-4 inline"></i></button><button onclick="confirmDeleteMaster('${g.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4 inline"></i></button></td></tr>`;
                 });
             } else if(currentTable === 'mapel') {
@@ -868,6 +862,7 @@
                 h += `<div><label class="text-xs font-bold">J.Kelamin</label><select id="f-jk" class="w-full border rounded p-2"><option value="L" ${i&&i.jk==='L'?'selected':''}>L</option><option value="P" ${i&&i.jk==='P'?'selected':''}>P</option></select></div>`;
                 h += `<div><label class="text-xs font-bold">Kelas</label><select id="f-kelas" class="w-full border rounded p-2">${db.kelas.map(k=>`<option value="${k}" ${i&&i.kelas===k?'selected':''}>${k}</option>`).join('')}</select></div>`;
             } else if(currentTable==='guru') {
+                h += `<div><label class="text-xs font-bold">NIP</label><input type="text" id="f-nip" class="w-full border rounded p-2" value="${i&&i.nip?i.nip:''}" placeholder="-"></div>`;
                 h += `<div><label class="text-xs font-bold">Nama</label><input type="text" id="f-nama" class="w-full border rounded p-2" value="${i?i.nama:''}"></div>`;
                 h += `<div><label class="text-xs font-bold">Jabatan</label><select id="f-jab" class="w-full border rounded p-2" onchange="updTugas()"><option value="Wali Kelas" ${i&&i.jabatan==='Wali Kelas'?'selected':''}>Wali Kelas</option><option value="Guru Mapel" ${i&&i.jabatan==='Guru Mapel'?'selected':''}>Guru Mapel</option></select></div>`;
                 h += `<div><label class="text-xs font-bold">Tugas</label><select id="f-tug" class="w-full border rounded p-2"></select></div>`;
@@ -885,11 +880,11 @@
             t.innerHTML = j==='Wali Kelas' ? db.kelas.map(k=>`<option value="${k}">${k}</option>`).join('') : db.mapel.map(m=>`<option value="${m.nama}">${m.nama}</option>`).join('');
         };
 
-        // PERBAIKAN: Modal Master Data Simpan
         document.getElementById('btn-save-modal').onclick = async () => {
             let nd = { id: editId || Math.random().toString(36).substr(2,9) };
             if(currentTable==='siswa') { nd.nisn=document.getElementById('f-nisn').value; nd.nama=document.getElementById('f-nama').value; nd.jk=document.getElementById('f-jk').value; nd.kelas=document.getElementById('f-kelas').value; }
             else if(currentTable==='guru') { 
+                nd.nip=document.getElementById('f-nip').value;
                 nd.nama=document.getElementById('f-nama').value; 
                 nd.jabatan=document.getElementById('f-jab').value; 
                 nd.tugas=document.getElementById('f-tug').value; 
@@ -900,7 +895,6 @@
             
             if(editId) db[currentTable][db[currentTable].findIndex(x=>x.id===editId)] = nd; else db[currentTable].push(nd);
             
-            // Tunggu status simpan ke cloud
             const success = await saveToSheets(); 
             if (success) {
                 closeModal(); 
@@ -976,7 +970,6 @@
             reader.readAsArrayBuffer(file);
         };
 
-        // --- Simpan Manual Data Master ---
         window.saveMasterDataManual = async function() {
             const success = await saveToSheets();
             if(success) {
@@ -989,7 +982,6 @@
             const arrKelas = getAvailableKelas();
             document.getElementById('presensi-kelas').innerHTML = '<option value="">Pilih Kelas</option>' + arrKelas.map(k => `<option value="${k}">${k}</option>`).join('');
             
-            // Jika guru hanya mengajar 1 kelas, auto-select kelas tersebut
             if (arrKelas.length === 1) {
                 document.getElementById('presensi-kelas').value = arrKelas[0];
             }
@@ -999,8 +991,11 @@
 
         window.clearPresensiTable = function() {
             document.getElementById('presensi-tbody').innerHTML = '<tr><td colspan="7" class="p-4 text-center text-xs text-gray-400">Pilih filter lalu klik Tampil.</td></tr>';
-            document.getElementById('presensi-actions').classList.add('hidden');
-            document.getElementById('presensi-actions').classList.remove('flex');
+            const actions = document.getElementById('presensi-actions');
+            if (actions) {
+                actions.classList.add('hidden');
+                actions.classList.remove('flex');
+            }
         };
 
         window.togglePresensiInputs = function() {
@@ -1053,19 +1048,27 @@
                     </tr>`;
                 });
                 
-                // Menampilkan WA & Simpan, Menyembunyikan PDF
-                document.getElementById('presensi-actions').classList.remove('hidden');
-                document.getElementById('presensi-actions').classList.add('flex');
-                document.getElementById('btn-presensi-simpan').classList.remove('hidden');
-                document.getElementById('btn-presensi-pdf').classList.add('hidden');
+                const actions = document.getElementById('presensi-actions');
+                if (actions) {
+                    actions.classList.remove('hidden');
+                    actions.classList.add('flex');
+                    const btnSimpan = document.getElementById('btn-presensi-simpan');
+                    const btnPdf = document.getElementById('btn-presensi-pdf');
+                    if(btnSimpan) btnSimpan.classList.remove('hidden');
+                    if(btnPdf) btnPdf.classList.add('hidden');
+                }
             } else {
                 thead = `<tr><th class="px-1 sm:px-3 py-2 text-left w-6 sm:w-10">No</th><th class="px-1 sm:px-3 py-2 text-left sticky-col bg-gray-50 z-10 border-r border-gray-200">Nama</th><th class="px-1 sm:px-3 py-2 text-center text-green-600 uppercase text-[9px] sm:text-[10px]">H</th><th class="px-1 sm:px-3 py-2 text-center text-blue-600 uppercase text-[9px] sm:text-[10px]">S</th><th class="px-1 sm:px-3 py-2 text-center text-yellow-600 uppercase text-[9px] sm:text-[10px]">I</th><th class="px-1 sm:px-3 py-2 text-center text-red-600 uppercase text-[9px] sm:text-[10px]">A</th></tr>`;
                 
-                // Menampilkan WA & PDF, Menyembunyikan Simpan
-                document.getElementById('presensi-actions').classList.remove('hidden');
-                document.getElementById('presensi-actions').classList.add('flex');
-                document.getElementById('btn-presensi-simpan').classList.add('hidden');
-                document.getElementById('btn-presensi-pdf').classList.remove('hidden');
+                const actions = document.getElementById('presensi-actions');
+                if (actions) {
+                    actions.classList.remove('hidden');
+                    actions.classList.add('flex');
+                    const btnSimpan = document.getElementById('btn-presensi-simpan');
+                    const btnPdf = document.getElementById('btn-presensi-pdf');
+                    if(btnSimpan) btnSimpan.classList.add('hidden');
+                    if(btnPdf) btnPdf.classList.remove('hidden');
+                }
                 
                 siswaKelas.forEach((s, i) => {
                     let h=0, sk=0, iz=0, a=0;
@@ -1125,7 +1128,6 @@
             }
         };
 
-        // --- Fitur Kirim WhatsApp Presensi ---
         window.sendPresensiWA = function() {
             const kls = document.getElementById('presensi-kelas').value;
             const mode = document.getElementById('presensi-mode').value;
@@ -1148,7 +1150,6 @@
                 const nama = row.cells[1].innerText.trim();
                 
                 if(mode === 'harian') {
-                    // Mode harian mengambil nilai dari radio button
                     const radios = row.querySelectorAll('input[type="radio"]');
                     let status = "Hadir";
                     radios.forEach(r => {
@@ -1161,7 +1162,6 @@
                     });
                     msg += `${index + 1}. ${nama} - *${status}*\n`;
                 } else {
-                    // Mode rekap mengambil angka dari sel tabel
                     const h = row.cells[2].innerText.trim();
                     const s = row.cells[3].innerText.trim();
                     const i = row.cells[4].innerText.trim();
@@ -1171,13 +1171,10 @@
             });
 
             msg += `\n_Dikirim melalui aplikasi SIPENILA SD_`;
-            
-            // Format URL khusus WhatsApp (wa.me)
             const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
         };
 
-        // --- Fitur Unduh PDF Presensi ---
         window.downloadPresensiPDF = function() {
             const kls = document.getElementById('presensi-kelas').value;
             const mode = document.getElementById('presensi-mode').value;
@@ -1189,7 +1186,6 @@
             else if (mode === 'tahunan') period = document.getElementById('presensi-year').value;
             else period = document.getElementById('presensi-date').value;
 
-            // Cari data Wali Kelas dari database untuk tanda tangan
             let namaWaliKelas = "(........................................)";
             let nipWaliKelas = "-";
             const wali = db.guru.find(g => g.jabatan === 'Wali Kelas' && g.tugas === kls);
@@ -1197,23 +1193,19 @@
                 namaWaliKelas = wali.nama;
                 nipWaliKelas = wali.nip || "-";
             } else if (userRole === 'guru' && loggedInGuru) {
-                // Fallback jika tidak ditemukan, gunakan nama guru yang sedang login
                 namaWaliKelas = loggedInGuru.nama;
                 nipWaliKelas = loggedInGuru.nip || "-";
             }
 
-            // Dapatkan tanggal hari ini untuk titi mangsa
             const today = new Date();
             const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
             const tglCetak = today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
 
-            // Elemen virtual untuk membungkus kop/judul laporan dan tabel
             const element = document.createElement('div');
             element.style.padding = '10px';
             element.style.fontFamily = 'Arial, sans-serif';
             element.style.color = '#000';
             
-            // Tambahkan CSS Khusus PDF agar elemen tidak terpotong (Page Break Rules)
             const style = document.createElement('style');
             style.innerHTML = `
                 table { page-break-inside: auto; width: 100%; border-collapse: collapse; margin-bottom: 20px; }
@@ -1226,9 +1218,8 @@
             `;
             element.appendChild(style);
 
-            // Header Laporan
             const headerDiv = document.createElement('div');
-            headerDiv.className = 'avoid-break'; // Jaga agar header tidak terpotong ke halaman 2
+            headerDiv.className = 'avoid-break'; 
             headerDiv.innerHTML = `
                 <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
                     <h2 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">LAPORAN PRESENSI SISWA</h2>
@@ -1247,28 +1238,25 @@
             `;
             element.appendChild(headerDiv);
 
-            // Membuat salinan (clone) tabel utama
             const tableClone = document.querySelector('#presensi-tbody').parentElement.cloneNode(true);
-            tableClone.className = ''; // Hapus class tailwind pembungkus tabel
+            tableClone.className = ''; 
             
             const ths = tableClone.querySelectorAll('th');
             const tds = tableClone.querySelectorAll('td');
             
             [...ths, ...tds].forEach(cell => {
                 const isCenter = cell.classList.contains('text-center');
-                cell.className = ''; // Bersihkan class tailwind
+                cell.className = ''; 
                 cell.style.textAlign = isCenter || cell.tagName === 'TH' ? 'center' : 'left';
                 
-                // Pastikan kolom No bergeser ke tengah
                 if(cell.innerText === 'No' || (!isNaN(cell.innerText) && cell.cellIndex === 0)) {
                      cell.style.textAlign = 'center';
                 }
             });
             element.appendChild(tableClone);
 
-            // Tambahkan bagian Tanda Tangan
             const signatureDiv = document.createElement('div');
-            signatureDiv.className = 'avoid-break'; // Cegah tanda tangan terpisah ke lembar baru tanpa alasan
+            signatureDiv.className = 'avoid-break'; 
             signatureDiv.style.marginTop = '20px';
             signatureDiv.innerHTML = `
                 <table class="no-border-table" style="width: 100%; font-size: 12px; margin-top: 30px;">
@@ -1287,14 +1275,12 @@
             `;
             element.appendChild(signatureDiv);
 
-            // Pengaturan output PDF
             const opt = {
                 margin:       10, 
                 filename:     `Rekap_Presensi_Kelas_${kls}_${period.replace(/\//g, '-')}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                // Aktifkan mode CSS page-break
                 pagebreak:    { mode: ['css', 'legacy'] } 
             };
 
@@ -1309,7 +1295,6 @@
             const guruSelect = document.getElementById('nilai-filter-guru');
             
             if (userRole === 'guru' && loggedInGuru) {
-                // Kunci dropdown guru ke guru yang sedang login
                 guruSelect.innerHTML = `<option value="${loggedInGuru.id}">${loggedInGuru.nama}</option>`;
                 guruSelect.disabled = true;
             } else {
@@ -1386,7 +1371,6 @@
             document.getElementById('nilai-actions').classList.remove('hidden');
         };
 
-        // PERBAIKAN: Tombol Simpan Nilai
         document.getElementById('btn-save-nilai').onclick = async () => {
             document.querySelectorAll('.v-nil').forEach(i => { 
                 if(i.value==='') delete db.nilai[i.dataset.k]; 
@@ -1399,7 +1383,6 @@
             }
         };
 
-        // --- Ekspor & Impor Nilai (Excel) ---
         window.exportNilaiExcel = function() {
             const k = document.getElementById('nilai-filter-kelas').value;
             const m = document.getElementById('nilai-filter-mapel').value;
@@ -1479,6 +1462,20 @@
         };
 
         // --- Laporan ---
+        function getWaliKelasData(kls) {
+            let namaWali = "(........................................)";
+            let nipWali = "-";
+            const wali = db.guru.find(g => g.jabatan === 'Wali Kelas' && g.tugas === kls);
+            if (wali) { namaWali = wali.nama; nipWali = wali.nip || "-"; }
+            else if (userRole === 'guru' && loggedInGuru) { namaWali = loggedInGuru.nama; nipWali = loggedInGuru.nip || "-"; }
+            return { nama: namaWali, nip: nipWali };
+        }
+        function getTglCetak() {
+            const today = new Date();
+            const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            return today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
+        }
+
         function setupRekapFilter() { 
             const arrKelas = getAvailableKelas();
             const arrMapel = getAvailableMapel();
@@ -1496,6 +1493,7 @@
 
             const w = { h:Number(document.getElementById('weight-harian').value)/100, u:Number(document.getElementById('weight-ulangan').value)/100, t:Number(document.getElementById('weight-sts').value)/100, a:Number(document.getElementById('weight-sas').value)/100 };
             let b = '';
+            let index = 1;
             db.siswa.filter(x=>x.kelas===k).forEach(sis => {
                 let th=0, ch=0, tu=0, cu=0;
                 for(let key in db.nilai) {
@@ -1504,8 +1502,20 @@
                 }
                 let rh = ch?Math.round(th/ch):0, ru = cu?Math.round(tu/cu):0, sts = db.nilai[`${sis.id}_${m}_sts_${s}_1`]||0, sas = db.nilai[`${sis.id}_${m}_sas_${s}_1`]||0;
                 let akhir = Math.round((rh*w.h)+(ru*w.u)+(sts*w.t)+(sas*w.a));
-                b += `<tr class="border-b"><td class="px-3 py-2 text-xs font-bold sticky-col border-r border-blue-100 bg-white truncate max-w-[120px] md:max-w-none">${sis.nama}</td><td class="text-center">${rh}</td><td class="text-center">${ru}</td><td class="text-center">${sts}</td><td class="text-center">${sas}</td><td class="text-center font-bold text-blue-700 bg-blue-50">${akhir}</td></tr>`;
-            }); document.getElementById('rekap-tbody').innerHTML = b || '<tr><td colspan="6" class="text-center p-4">Kosong.</td></tr>';
+                b += `<tr class="border-b"><td class="px-2 py-2 text-center sticky-col border-r border-gray-200 bg-white">${index++}</td><td class="px-3 py-2 text-xs font-bold sticky-col border-r border-blue-100 bg-white truncate max-w-[120px] md:max-w-none" style="left: 32px;">${sis.nama}</td><td class="text-center">${rh}</td><td class="text-center">${ru}</td><td class="text-center">${sts}</td><td class="text-center">${sas}</td><td class="text-center font-bold text-blue-700 bg-blue-50">${akhir}</td></tr>`;
+            }); 
+            document.getElementById('rekap-tbody').innerHTML = b || '<tr><td colspan="7" class="text-center p-4">Kosong.</td></tr>';
+
+            const actions = document.getElementById('rekap-actions');
+            if (actions) {
+                if(b) {
+                    actions.classList.remove('hidden');
+                    actions.classList.add('flex');
+                } else {
+                    actions.classList.add('hidden');
+                    actions.classList.remove('flex');
+                }
+            }
         };
 
         function setupLedgerFilter() { 
@@ -1519,13 +1529,14 @@
             if(!k) return alert("Pilih kelas.");
 
             const arrMapel = getAvailableMapel();
-            let h = `<tr><th class="px-3 py-2 sticky-col bg-gray-800 border-r border-gray-600 text-left">Nama</th>`; 
+            let h = `<tr><th class="px-2 py-2 w-8 text-center sticky-col bg-gray-800 border-r border-gray-600">No</th><th class="px-3 py-2 sticky-col bg-gray-800 border-r border-gray-600 text-left" style="left:32px;">Nama</th>`; 
             arrMapel.forEach(m => h+=`<th class="px-2 py-2 min-w-[50px] border-l border-gray-600">${m.kode}</th>`); h+=`</tr>`;
             document.getElementById('ledger-thead').innerHTML = h; 
             let b = '';
 
+            let index = 1;
             db.siswa.filter(x=>x.kelas===k).forEach(sis => {
-                b += `<tr class="border-b"><td class="px-3 py-2 sticky-col font-bold border-r border-gray-200 bg-white truncate max-w-[120px] md:max-w-none">${sis.nama}</td>`;
+                b += `<tr class="border-b"><td class="px-2 py-2 text-center sticky-col border-r border-gray-200 bg-white">${index++}</td><td class="px-3 py-2 sticky-col font-bold border-r border-gray-200 bg-white truncate max-w-[120px] md:max-w-none" style="left:32px;">${sis.nama}</td>`;
                 arrMapel.forEach(m => {
                     let th=0, ch=0, tu=0, cu=0;
                     for(let key in db.nilai) { if(key.startsWith(`${sis.id}_${m.id}_harian_${s}_`)){th+=db.nilai[key];ch++;} if(key.startsWith(`${sis.id}_${m.id}_ulangan_${s}_`)){tu+=db.nilai[key];cu++;} }
@@ -1533,7 +1544,265 @@
                     let akhir = Math.round((rh*0.4)+(ru*0.3)+(sts*0.15)+(sas*0.15));
                     b += `<td class="text-center border-l">${akhir||'-'}</td>`;
                 }); b += `</tr>`;
-            }); document.getElementById('ledger-tbody').innerHTML = b || '<tr><td class="p-4 text-center">Kosong.</td></tr>';
+            }); 
+            document.getElementById('ledger-tbody').innerHTML = b || '<tr><td colspan="20" class="p-4 text-center">Kosong.</td></tr>';
+
+            const actions = document.getElementById('ledger-actions');
+            if (actions) {
+                if(b) {
+                    actions.classList.remove('hidden');
+                    actions.classList.add('flex');
+                } else {
+                    actions.classList.add('hidden');
+                    actions.classList.remove('flex');
+                }
+            }
+        };
+
+        function generatePDFFromTable(tableId, titleHTML, filename, kls, orientation = 'portrait') {
+            const tableClone = document.querySelector(tableId).cloneNode(true);
+            tableClone.className = ''; 
+            tableClone.style.width = '100%';
+            tableClone.style.borderCollapse = 'collapse';
+            tableClone.style.marginTop = '20px';
+            tableClone.style.marginBottom = '20px';
+            
+            // Hapus class pembawa warna gelap dari thead, tbody, dan tr
+            const thead = tableClone.querySelector('thead');
+            if (thead) thead.className = '';
+            const tbody = tableClone.querySelector('tbody');
+            if (tbody) tbody.className = '';
+            tableClone.querySelectorAll('tr').forEach(tr => tr.className = '');
+
+            const ths = tableClone.querySelectorAll('th');
+            const tds = tableClone.querySelectorAll('td');
+            
+            [...ths, ...tds].forEach(cell => {
+                const isCenter = cell.classList.contains('text-center');
+                cell.className = ''; 
+                cell.style.border = '1px solid #000';
+                cell.style.padding = '6px';
+                cell.style.color = '#000';
+                cell.style.fontSize = '11px';
+                cell.style.textAlign = isCenter || cell.tagName === 'TH' ? 'center' : 'left';
+                
+                // Tambahkan background abu-abu terang khusus untuk header agar rapi di PDF
+                if(cell.tagName === 'TH') {
+                    cell.style.backgroundColor = '#f3f4f6';
+                }
+
+                if(!isNaN(cell.innerText) && cell.innerText.length < 4 && cell.cellIndex === 0) cell.style.textAlign = 'center';
+            });
+
+            const wk = getWaliKelasData(kls);
+            const tgl = getTglCetak();
+
+            const element = document.createElement('div');
+            element.style.padding = '10px';
+            element.style.fontFamily = 'Arial, sans-serif';
+            element.style.color = '#000';
+            
+            const style = document.createElement('style');
+            style.innerHTML = `
+                table { page-break-inside: auto; width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                tr { page-break-inside: avoid; page-break-after: auto; }
+                th, td { border: 1px solid #000; padding: 6px; font-size: 11px; color: #000; }
+                thead { display: table-header-group; }
+                tfoot { display: table-footer-group; }
+                .avoid-break { page-break-inside: avoid; }
+                .no-border-table th, .no-border-table td { border: none !important; padding: 2px !important; text-align: left; }
+            `;
+            element.appendChild(style);
+
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'avoid-break'; 
+            headerDiv.innerHTML = titleHTML;
+            element.appendChild(headerDiv);
+            
+            element.appendChild(tableClone);
+
+            const signatureDiv = document.createElement('div');
+            signatureDiv.className = 'avoid-break'; 
+            signatureDiv.style.marginTop = '20px';
+            signatureDiv.innerHTML = `
+                <table class="no-border-table" style="width: 100%; font-size: 12px; margin-top: 30px;">
+                    <tr>
+                        <td style="width: 60%;"></td>
+                        <td style="width: 40%; text-align: center;">
+                            Bandar Lampung, ${tgl}<br>
+                            Mengetahui,<br>
+                            Wali Kelas ${kls}<br>
+                            <br><br><br><br>
+                            <strong><u>${wk.nama}</u></strong><br>
+                            NIP. ${wk.nip}
+                        </td>
+                    </tr>
+                </table>
+            `;
+            element.appendChild(signatureDiv);
+
+            const opt = {
+                margin:       [15, 10, 15, 10], 
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation },
+                pagebreak:    { mode: ['css', 'legacy'] } 
+            };
+
+            showProcessing();
+            html2pdf().set(opt).from(element).save().then(() => hideProcessing());
+        }
+
+        window.exportRekapPDF = function() {
+            const k = document.getElementById('rekap-filter-kelas').value;
+            const s = document.getElementById('rekap-filter-semester').value;
+            const m = document.getElementById('rekap-filter-mapel').value;
+            const mapelObj = db.mapel.find(x => x.id === m);
+            const mapelName = mapelObj ? mapelObj.nama : '-';
+
+            const titleHTML = `
+                <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                    <h2 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">LAPORAN REKAP NILAI MATA PELAJARAN</h2>
+                    <h3 style="font-size: 14px; font-weight: bold; margin: 5px 0;">SDN 1 DURIAN PAYUNG</h3>
+                </div>
+                <table class="no-border-table" style="width: 100%; font-size: 12px; margin-bottom: 10px;">
+                    <tr><td style="width: 120px; font-weight: bold;">Mata Pelajaran</td><td>: ${mapelName}</td></tr>
+                    <tr><td style="font-weight: bold;">Kelas</td><td>: ${k}</td></tr>
+                    <tr><td style="font-weight: bold;">Semester</td><td>: ${s}</td></tr>
+                </table>
+            `;
+            generatePDFFromTable('#table-rekap', titleHTML, `Rekap_Nilai_${mapelName}_Kelas_${k}.pdf`, k, 'portrait');
+        }
+
+        window.exportLedgerPDF = function() {
+            const k = document.getElementById('ledger-filter-kelas').value;
+            const s = document.getElementById('ledger-filter-semester').value;
+
+            const titleHTML = `
+                <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                    <h2 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">LEDGER NILAI KELAS</h2>
+                    <h3 style="font-size: 14px; font-weight: bold; margin: 5px 0;">SDN 1 DURIAN PAYUNG</h3>
+                </div>
+                <table class="no-border-table" style="width: 100%; font-size: 12px; margin-bottom: 10px;">
+                    <tr><td style="width: 100px; font-weight: bold;">Kelas</td><td>: ${k}</td></tr>
+                    <tr><td style="font-weight: bold;">Semester</td><td>: ${s}</td></tr>
+                </table>
+            `;
+            generatePDFFromTable('#table-ledger', titleHTML, `Ledger_Kelas_${k}_Sem_${s}.pdf`, k, 'landscape');
+        }
+
+        function exportToExcelAOA(aoaData, sheetName, filename, colWidths = null) {
+            showProcessing();
+            const ws = XLSX.utils.aoa_to_sheet(aoaData);
+            if(colWidths) ws['!cols'] = colWidths; 
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            XLSX.writeFile(wb, filename);
+            hideProcessing();
+        }
+
+        window.exportRekapExcel = function() {
+            const k = document.getElementById('rekap-filter-kelas').value;
+            const s = document.getElementById('rekap-filter-semester').value;
+            const m = document.getElementById('rekap-filter-mapel').value;
+            const mapelObj = db.mapel.find(x => x.id === m);
+            const mapelName = mapelObj ? mapelObj.nama : '-';
+
+            const aoa = [
+                ["LAPORAN REKAP NILAI MATA PELAJARAN"],
+                ["SDN 1 DURIAN PAYUNG"],
+                [],
+                ["Mata Pelajaran", ":", mapelName],
+                ["Kelas", ":", k],
+                ["Semester", ":", s],
+                [],
+                ["No", "Nama Siswa", "Harian", "Ulangan", "STS", "SAS", "Nilai Akhir"]
+            ];
+
+            let index = 1;
+            const tbodyRows = document.querySelectorAll('#rekap-tbody tr');
+            tbodyRows.forEach(tr => {
+                const rowData = [index++];
+                const tds = tr.querySelectorAll('td');
+                if(tds.length === 7) { 
+                    rowData.push(tds[1].innerText); 
+                    rowData.push(Number(tds[2].innerText) || 0); 
+                    rowData.push(Number(tds[3].innerText) || 0); 
+                    rowData.push(Number(tds[4].innerText) || 0); 
+                    rowData.push(Number(tds[5].innerText) || 0); 
+                    rowData.push(Number(tds[6].innerText) || 0); 
+                    aoa.push(rowData);
+                }
+            });
+
+            const wk = getWaliKelasData(k);
+            const tgl = getTglCetak();
+            
+            aoa.push([]);
+            aoa.push(["", "", "", "", "Bandar Lampung, " + tgl]);
+            aoa.push(["", "", "", "", "Mengetahui,"]);
+            aoa.push(["", "", "", "", "Wali Kelas " + k]);
+            aoa.push([]);
+            aoa.push([]);
+            aoa.push(["", "", "", "", wk.nama]);
+            aoa.push(["", "", "", "", "NIP. " + wk.nip]);
+
+            const wscols = [ {wch: 5}, {wch: 35}, {wch: 10}, {wch: 10}, {wch: 10}, {wch: 10}, {wch: 15} ];
+            
+            exportToExcelAOA(aoa, "Rekap Nilai", `Rekap_Nilai_${mapelName}_Kelas_${k}.xlsx`, wscols);
+        };
+
+        window.exportLedgerExcel = function() {
+            const k = document.getElementById('ledger-filter-kelas').value;
+            const s = document.getElementById('ledger-filter-semester').value;
+
+            const aoa = [
+                ["LEDGER NILAI KELAS"],
+                ["SDN 1 DURIAN PAYUNG"],
+                [],
+                ["Kelas", ":", k],
+                ["Semester", ":", s],
+                []
+            ];
+
+            const headerRow = ["No", "Nama Siswa"];
+            const theadThs = document.querySelectorAll('#ledger-thead th');
+            for(let i = 2; i < theadThs.length; i++) { 
+                headerRow.push(theadThs[i].innerText);
+            }
+            aoa.push(headerRow);
+            
+            const wscols = [ {wch: 5}, {wch: 35} ];
+            for(let i = 2; i < theadThs.length; i++) wscols.push({wch: 12});
+
+            let index = 1;
+            const tbodyRows = document.querySelectorAll('#ledger-tbody tr');
+            tbodyRows.forEach(tr => {
+                const rowData = [index++];
+                const tds = tr.querySelectorAll('td');
+                if(tds.length > 2) { 
+                    for(let i=1; i<tds.length; i++) { 
+                        let val = tds[i].innerText;
+                        rowData.push(i === 1 ? val : (Number(val) || val));
+                    }
+                    aoa.push(rowData);
+                }
+            });
+
+            const wk = getWaliKelasData(k);
+            const tgl = getTglCetak();
+            
+            aoa.push([]);
+            aoa.push(["", "", "Bandar Lampung, " + tgl]);
+            aoa.push(["", "", "Mengetahui,"]);
+            aoa.push(["", "", "Wali Kelas " + k]);
+            aoa.push([]);
+            aoa.push([]);
+            aoa.push(["", "", wk.nama]);
+            aoa.push(["", "", "NIP. " + wk.nip]);
+
+            exportToExcelAOA(aoa, "Ledger Kelas", `Ledger_Kelas_${k}_Sem_${s}.xlsx`, wscols);
         };
 
         // Document Ready Fixes
