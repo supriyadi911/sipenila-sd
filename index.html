@@ -14,6 +14,9 @@
     <!-- html2pdf (Fitur Unduh PDF) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
+    <!-- Chart.js (Fitur Grafik Dashboard) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -262,28 +265,63 @@
                             <div><p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase" id="label-stat-nilai">Entri Nilai</p><h3 class="text-xl md:text-2xl font-bold" id="stat-nilai">0</h3></div>
                         </div>
                     </div>
+
+                    <!-- NEW: Dashboard Charts -->
+                    <div id="dashboard-charts" class="hidden mt-6 grid grid-cols-1 gap-6">
+                        <!-- Chart: Persentase Kehadiran (Full Width Bar Chart) -->
+                        <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2 border-b border-gray-50 pb-2">
+                                <h3 class="font-bold text-gray-800 text-sm md:text-base flex items-center whitespace-nowrap"><i data-lucide="bar-chart-2" class="w-4 h-4 mr-2 text-primary"></i> Rekap Kehadiran Siswa</h3>
+                                <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+                                    <select id="chart-presensi-mode" class="border rounded-lg px-2 py-1 text-xs bg-gray-50 focus:ring-primary outline-none" onchange="toggleDashboardPresensiFilter()">
+                                        <option value="semua">Semua Waktu</option>
+                                        <option value="harian">Harian</option>
+                                        <option value="bulanan">Bulanan</option>
+                                        <option value="semester">Semester</option>
+                                        <option value="tahunan">Tahunan</option>
+                                    </select>
+                                    <div id="chart-presensi-input-container" class="flex gap-2"></div>
+                                </div>
+                            </div>
+                            <div class="relative flex-1 w-full min-h-[300px] flex justify-center items-center">
+                                <canvas id="presensiChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- VIEW: Presensi -->
                 <div id="view-presensi" class="view-section hidden fade-in h-full flex flex-col">
-                    <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border mb-4 flex flex-wrap gap-3 items-end">
-                        <div class="flex-1 min-w-[120px]">
-                            <label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Kelas</label>
-                            <select id="presensi-kelas" class="w-full border rounded px-2 py-1.5 text-xs bg-gray-50" onchange="clearPresensiTable()"></select>
+                    <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border mb-4 transition-all">
+                        <!-- Header Toggle Khusus Mobile -->
+                        <div class="flex justify-between items-center md:hidden mb-2 pb-2 border-b border-gray-100">
+                            <span class="text-[10px] font-bold text-gray-500 uppercase flex items-center"><i data-lucide="filter" class="w-3 h-3 mr-1"></i> Pengaturan Presensi</span>
+                            <button onclick="togglePresensiFilter()" class="text-primary text-[10px] font-bold flex items-center bg-blue-50 px-2 py-1 rounded transition-colors hover:bg-blue-100">
+                                <span id="text-toggle-filter">Sembunyikan</span> <i data-lucide="chevron-up" id="icon-toggle-filter" class="w-3 h-3 ml-1"></i>
+                            </button>
                         </div>
-                        <div class="flex-1 min-w-[140px]">
-                            <label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Mode Presensi</label>
-                            <select id="presensi-mode" class="w-full border rounded px-2 py-1.5 text-xs" onchange="togglePresensiInputs()">
-                                <option value="harian">Entri Presensi Harian</option>
-                                <option value="mingguan">Rekap Mingguan</option>
-                                <option value="bulanan">Rekap Bulanan</option>
-                                <option value="tahunan">Rekap Tahunan</option>
-                            </select>
+                        
+                        <!-- Body Filter -->
+                        <div id="presensi-filter-body" class="flex flex-wrap gap-3 items-end">
+                            <div class="flex-1 min-w-[120px]">
+                                <label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Kelas</label>
+                                <select id="presensi-kelas" class="w-full border rounded px-2 py-1.5 text-xs bg-gray-50" onchange="clearPresensiTable()"></select>
+                            </div>
+                            <div class="flex-1 min-w-[140px]">
+                                <label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Mode Presensi</label>
+                                <select id="presensi-mode" class="w-full border rounded px-2 py-1.5 text-xs" onchange="togglePresensiInputs()">
+                                    <option value="harian">Entri Presensi Harian</option>
+                                    <option value="mingguan">Rekap Mingguan</option>
+                                    <option value="bulanan">Rekap Bulanan</option>
+                                    <option value="semester">Rekap Semester</option>
+                                    <option value="tahunan">Rekap Tahunan</option>
+                                </select>
+                            </div>
+                            <div id="presensi-date-container" class="flex-1 min-w-[140px] flex gap-2 w-full sm:w-auto"></div>
+                            <button onclick="loadPresensi()" class="bg-primary text-white py-1.5 px-4 rounded text-xs font-bold hover:bg-blue-800 transition-colors h-[30px] flex items-center shadow w-full sm:w-auto justify-center">
+                                <i data-lucide="search" class="w-3 h-3 mr-1"></i> Tampil
+                            </button>
                         </div>
-                        <div id="presensi-date-container" class="flex-1 min-w-[140px] flex gap-2"></div>
-                        <button onclick="loadPresensi()" class="bg-primary text-white py-1.5 px-4 rounded text-xs font-bold hover:bg-blue-800 transition-colors h-[30px] flex items-center shadow">
-                            <i data-lucide="search" class="w-3 h-3 mr-1"></i> Tampil
-                        </button>
                     </div>
                     
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex-1 flex flex-col min-h-0">
@@ -510,6 +548,10 @@
         let currentPenilaianType = '';
         let userRole = 'admin'; 
         let loggedInGuru = null; 
+        
+        // Chart Instances
+        let nilaiChartInstance = null;
+        let presensiChartInstance = null;
 
         // UI Basic
         function showLogin() { document.getElementById('login-screen').classList.remove('hidden'); }
@@ -787,14 +829,25 @@
         }
 
         function renderDashboard() { 
+            // Update dropdown mapel untuk chart
+            const mapelSelect = document.getElementById('chart-mapel-filter');
+            if (mapelSelect) {
+                const arrMapel = getAvailableMapel();
+                mapelSelect.innerHTML = arrMapel.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
+            }
+
             if (userRole === 'guru' && loggedInGuru) {
                 // Tampilan Khusus Guru
                 document.getElementById('dashboard-desc').classList.add('hidden');
                 document.getElementById('biodata-guru').classList.remove('hidden');
+                document.getElementById('dashboard-charts').classList.remove('hidden');
                 
                 document.getElementById('bio-nama').textContent = loggedInGuru.nama || '-';
                 document.getElementById('bio-nip').textContent = loggedInGuru.nip || '-';
                 document.getElementById('bio-tugas').textContent = (loggedInGuru.jabatan || '') + ' (' + (loggedInGuru.tugas || '') + ')';
+
+                // Inisialisasi Filter Grafik Kehadiran
+                window.toggleDashboardPresensiFilter(true); // mode awal
 
                 // Sembunyikan card Total Guru dan Mapel
                 document.getElementById('card-guru').classList.add('hidden');
@@ -836,6 +889,7 @@
                 // Tampilan Khusus Admin
                 document.getElementById('dashboard-desc').classList.remove('hidden');
                 document.getElementById('biodata-guru').classList.add('hidden');
+                document.getElementById('dashboard-charts').classList.remove('hidden');
 
                 document.getElementById('card-guru').classList.remove('hidden');
                 document.getElementById('card-mapel').classList.remove('hidden');
@@ -849,7 +903,157 @@
                 document.getElementById('stat-nilai').textContent = db.nilai ? Object.keys(db.nilai).length : 0;
                 document.getElementById('label-stat-nilai').textContent = "Total Entri Nilai";
             }
+
+            // Memperbarui grafik jika panel Dashboard sedang terbuka
+            setTimeout(() => {
+                if (!document.getElementById('view-dashboard').classList.contains('hidden')) {
+                    window.updatePresensiChart();
+                }
+            }, 100);
         }
+
+        // --- Logika Grafik Dashboard (Chart.js) ---
+        window.toggleDashboardPresensiFilter = function(isInit = false) {
+            const mode = document.getElementById('chart-presensi-mode').value;
+            const container = document.getElementById('chart-presensi-input-container');
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7);
+            const currentYear = today.substring(0, 4);
+
+            if (mode === 'semua') {
+                container.innerHTML = '';
+            } else if (mode === 'harian') {
+                container.innerHTML = `<input type="date" id="chart-presensi-date" class="border rounded-lg px-2 py-1 text-xs focus:ring-primary outline-none bg-gray-50" value="${today}" onchange="updatePresensiChart()">`;
+            } else if (mode === 'bulanan') {
+                container.innerHTML = `<input type="month" id="chart-presensi-month" class="border rounded-lg px-2 py-1 text-xs focus:ring-primary outline-none bg-gray-50" value="${currentMonth}" onchange="updatePresensiChart()">`;
+            } else if (mode === 'semester') {
+                container.innerHTML = `
+                    <select id="chart-presensi-sem-val" class="border rounded-lg px-2 py-1 text-xs focus:ring-primary outline-none bg-gray-50" onchange="updatePresensiChart()"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select>
+                    <input type="number" id="chart-presensi-sem-year" class="border rounded-lg px-2 py-1 text-xs w-20 focus:ring-primary outline-none bg-gray-50" value="${currentYear}" onchange="updatePresensiChart()">
+                `;
+            } else if (mode === 'tahunan') {
+                container.innerHTML = `<input type="number" id="chart-presensi-year" class="border rounded-lg px-2 py-1 text-xs w-20 focus:ring-primary outline-none bg-gray-50" value="${currentYear}" onchange="updatePresensiChart()">`;
+            }
+            
+            if(!isInit) window.updatePresensiChart();
+        };
+
+        window.updatePresensiChart = function() {
+            const canvas = document.getElementById('presensiChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const modeSelect = document.getElementById('chart-presensi-mode');
+            const mode = modeSelect ? modeSelect.value : 'semua';
+            
+            let h = 0, s = 0, i = 0, a = 0;
+            
+            let targetSiswaIds = [];
+            if (userRole === 'guru' && loggedInGuru && loggedInGuru.jabatan === 'Wali Kelas') {
+                targetSiswaIds = db.siswa.filter(sis => sis.kelas === loggedInGuru.tugas).map(sis => String(sis.id));
+            } else {
+                targetSiswaIds = db.siswa.map(sis => String(sis.id));
+            }
+
+            for (let key in db.presensi) {
+                const parts = key.split('_');
+                const sid = String(parts[0]);
+                const dateStr = parts[1]; // Format: YYYY-MM-DD
+                
+                if (targetSiswaIds.includes(sid) && dateStr) {
+                    let isMatch = true;
+                    
+                    if (mode === 'harian') {
+                        const d = document.getElementById('chart-presensi-date');
+                        if (d && dateStr !== d.value) isMatch = false;
+                    } else if (mode === 'bulanan') {
+                        const m = document.getElementById('chart-presensi-month');
+                        if (m && !dateStr.startsWith(m.value)) isMatch = false;
+                    } else if (mode === 'tahunan') {
+                        const y = document.getElementById('chart-presensi-year');
+                        if (y && !dateStr.startsWith(y.value)) isMatch = false;
+                    } else if (mode === 'semester') {
+                        const y = document.getElementById('chart-presensi-sem-year');
+                        const sem = document.getElementById('chart-presensi-sem-val');
+                        if (y && sem) {
+                            const month = parseInt(dateStr.substring(5, 7), 10);
+                            const year = dateStr.substring(0, 4);
+                            if (sem.value === 'Ganjil' && !(year === y.value && month >= 7 && month <= 12)) isMatch = false;
+                            if (sem.value === 'Genap' && !(year === y.value && month >= 1 && month <= 6)) isMatch = false;
+                        }
+                    }
+
+                    if (isMatch) {
+                        const val = db.presensi[key];
+                        if (val === 'H') h++;
+                        else if (val === 'S') s++;
+                        else if (val === 'I') i++;
+                        else if (val === 'A') a++;
+                    }
+                }
+            }
+
+            if (presensiChartInstance) {
+                presensiChartInstance.destroy();
+            }
+
+            // Hitung persentase untuk tooltip
+            const total = h + s + i + a;
+            const pH = total ? Math.round((h / total) * 100) : 0;
+            const pS = total ? Math.round((s / total) * 100) : 0;
+            const pI = total ? Math.round((i / total) * 100) : 0;
+            const pA = total ? Math.round((a / total) * 100) : 0;
+
+            let chartData = [h, s, i, a];
+            let bgColors = [
+                'rgba(16, 185, 129, 1)', // Hadir
+                'rgba(59, 130, 246, 1)', // Sakit
+                'rgba(245, 158, 11, 1)', // Izin
+                'rgba(239, 68, 68, 1)'   // Alfa
+            ];
+
+            presensiChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Hadir', 'Sakit', 'Izin', 'Alfa'],
+                    datasets: [{
+                        label: 'Jumlah Kehadiran',
+                        data: chartData,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: 'rgba(59, 130, 246, 0.6)',
+                        pointBackgroundColor: bgColors,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1 } 
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let val = context.raw || 0;
+                                    let percentages = [pH, pS, pI, pA];
+                                    return `Total: ${val} kali (${percentages[context.dataIndex]}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
 
         // --- Data Table Master & CRUD Actions ---
         function setupDataTable() {
@@ -1058,12 +1262,32 @@
         }
 
         window.clearPresensiTable = function() {
-            document.getElementById('presensi-tbody').innerHTML = '<tr><td colspan="7" class="p-4 text-center text-xs text-gray-400">Pilih filter lalu klik Tampil.</td></tr>';
+            document.getElementById('presensi-tbody').innerHTML = '<tr><td colspan="10" class="p-4 text-center text-xs text-gray-400">Pilih filter lalu klik Tampil.</td></tr>';
             const actions = document.getElementById('presensi-actions');
             if (actions) {
                 actions.classList.add('hidden');
                 actions.classList.remove('flex');
             }
+        };
+
+        // --- Fungsi Toggle Filter Presensi ---
+        window.togglePresensiFilter = function() {
+            const body = document.getElementById('presensi-filter-body');
+            const text = document.getElementById('text-toggle-filter');
+            const icon = document.getElementById('icon-toggle-filter');
+
+            if (body.classList.contains('hidden')) {
+                body.classList.remove('hidden');
+                body.classList.add('flex');
+                text.textContent = 'Sembunyikan';
+                icon.setAttribute('data-lucide', 'chevron-up');
+            } else {
+                body.classList.add('hidden');
+                body.classList.remove('flex');
+                text.textContent = 'Tampilkan';
+                icon.setAttribute('data-lucide', 'chevron-down');
+            }
+            lucide.createIcons();
         };
 
         window.togglePresensiInputs = function() {
@@ -1084,6 +1308,11 @@
                 container.innerHTML = `<div class="w-full"><label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Bulan</label><input type="month" id="presensi-month" class="w-full border rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary outline-none" value="${currentMonth}" onchange="clearPresensiTable()"></div>`;
             } else if(mode === 'tahunan') {
                 container.innerHTML = `<div class="w-full"><label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Tahun</label><input type="number" id="presensi-year" min="2020" max="2100" value="${currentYear}" class="w-full border rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary outline-none" onchange="clearPresensiTable()"></div>`;
+            } else if(mode === 'semester') {
+                container.innerHTML = `
+                    <div class="w-1/2"><label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Tahun</label><input type="number" id="presensi-semester-year" min="2020" max="2100" value="${currentYear}" class="w-full border rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary outline-none" onchange="clearPresensiTable()"></div>
+                    <div class="w-1/2"><label class="block text-[10px] font-bold mb-1 uppercase text-gray-500">Semester</label><select id="presensi-semester-val" class="w-full border rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary outline-none" onchange="clearPresensiTable()"><option value="Ganjil">Ganjil (Jul-Des)</option><option value="Genap">Genap (Jan-Jun)</option></select></div>
+                `;
             }
             clearPresensiTable();
         };
@@ -1095,6 +1324,14 @@
 
             let thead = '', tbody = '';
             const siswaKelas = db.siswa.filter(s => s.kelas === kls);
+
+            // Auto-minimize filter pada tampilan mobile setelah klik Tampil
+            if(window.innerWidth < 768) {
+                const filterBody = document.getElementById('presensi-filter-body');
+                if(!filterBody.classList.contains('hidden')) {
+                    togglePresensiFilter();
+                }
+            }
 
             if(mode === 'harian') {
                 const date = document.getElementById('presensi-date').value;
@@ -1126,7 +1363,7 @@
                     if(btnPdf) btnPdf.classList.add('hidden');
                 }
             } else {
-                thead = `<tr><th class="px-1 sm:px-3 py-2 text-left w-6 sm:w-10">No</th><th class="px-1 sm:px-3 py-2 text-left sticky-col bg-gray-50 z-10 border-r border-gray-200">Nama</th><th class="px-1 sm:px-3 py-2 text-center text-green-600 uppercase text-[9px] sm:text-[10px]">H</th><th class="px-1 sm:px-3 py-2 text-center text-blue-600 uppercase text-[9px] sm:text-[10px]">S</th><th class="px-1 sm:px-3 py-2 text-center text-yellow-600 uppercase text-[9px] sm:text-[10px]">I</th><th class="px-1 sm:px-3 py-2 text-center text-red-600 uppercase text-[9px] sm:text-[10px]">A</th></tr>`;
+                thead = `<tr><th class="px-1 sm:px-3 py-2 text-left w-6 sm:w-10">No</th><th class="px-1 sm:px-3 py-2 text-left sticky-col bg-gray-50 z-10 border-r border-gray-200">Nama</th><th class="px-1 sm:px-3 py-2 text-center text-green-600 uppercase text-[9px] sm:text-[10px]">H</th><th class="px-1 sm:px-3 py-2 text-center text-blue-600 uppercase text-[9px] sm:text-[10px]">S</th><th class="px-1 sm:px-3 py-2 text-center text-yellow-600 uppercase text-[9px] sm:text-[10px]">I</th><th class="px-1 sm:px-3 py-2 text-center text-red-600 uppercase text-[9px] sm:text-[10px]">A</th><th class="px-1 sm:px-3 py-2 text-center text-green-600 uppercase text-[9px] sm:text-[10px]">% H</th><th class="px-1 sm:px-3 py-2 text-center text-blue-600 uppercase text-[9px] sm:text-[10px]">% S</th><th class="px-1 sm:px-3 py-2 text-center text-yellow-600 uppercase text-[9px] sm:text-[10px]">% I</th><th class="px-1 sm:px-3 py-2 text-center text-red-600 uppercase text-[9px] sm:text-[10px]">% A</th></tr>`;
                 
                 const actions = document.getElementById('presensi-actions');
                 if (actions) {
@@ -1158,6 +1395,13 @@
                             const start = document.getElementById('presensi-week-start').value;
                             const end = document.getElementById('presensi-week-end').value;
                             if(start && end && dateStr >= start && dateStr <= end) isMatch = true;
+                        } else if(mode === 'semester') {
+                            const yearVal = document.getElementById('presensi-semester-year').value;
+                            const semVal = document.getElementById('presensi-semester-val').value;
+                            const month = parseInt(dateStr.substring(5, 7), 10);
+                            const year = dateStr.substring(0, 4);
+                            if (semVal === 'Ganjil' && year === yearVal && month >= 7 && month <= 12) isMatch = true;
+                            if (semVal === 'Genap' && year === yearVal && month >= 1 && month <= 6) isMatch = true;
                         }
 
                         if(isMatch) {
@@ -1166,6 +1410,13 @@
                         }
                     }
 
+                    // Hitung persentase
+                    let total = h + sk + iz + a;
+                    let pH = total ? Math.round((h / total) * 100) : 0;
+                    let pS = total ? Math.round((sk / total) * 100) : 0;
+                    let pI = total ? Math.round((iz / total) * 100) : 0;
+                    let pA = total ? Math.round((a / total) * 100) : 0;
+
                     tbody += `<tr class="border-b hover:bg-gray-50">
                         <td class="px-1 sm:px-3 py-2 text-[9px] sm:text-xs text-gray-500">${i+1}</td>
                         <td class="px-1 sm:px-3 py-2 text-[9px] sm:text-xs font-bold sticky-col bg-white border-r border-gray-100 whitespace-normal sm:truncate leading-tight break-words">${s.nama}</td>
@@ -1173,12 +1424,16 @@
                         <td class="px-1 sm:px-3 py-2 text-center font-bold text-blue-700 bg-blue-50 text-[10px] sm:text-sm">${sk}</td>
                         <td class="px-1 sm:px-3 py-2 text-center font-bold text-yellow-700 bg-yellow-50 text-[10px] sm:text-sm">${iz}</td>
                         <td class="px-1 sm:px-3 py-2 text-center font-bold text-red-700 bg-red-50 text-[10px] sm:text-sm">${a}</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-green-600 text-[10px] sm:text-sm">${pH}%</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-blue-600 text-[10px] sm:text-sm">${pS}%</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-yellow-600 text-[10px] sm:text-sm">${pI}%</td>
+                        <td class="px-1 sm:px-3 py-2 text-center font-bold text-red-600 text-[10px] sm:text-sm">${pA}%</td>
                     </tr>`;
                 });
             }
 
             document.getElementById('presensi-thead').innerHTML = thead;
-            document.getElementById('presensi-tbody').innerHTML = tbody || '<tr><td colspan="6" class="text-center p-4">Tidak ada siswa.</td></tr>';
+            document.getElementById('presensi-tbody').innerHTML = tbody || '<tr><td colspan="10" class="text-center p-4">Tidak ada siswa.</td></tr>';
             lucide.createIcons();
         };
 
@@ -1205,6 +1460,7 @@
             if (mode === 'harian') period = document.getElementById('presensi-date').value;
             else if (mode === 'mingguan') period = document.getElementById('presensi-week-start').value + " s/d " + document.getElementById('presensi-week-end').value;
             else if (mode === 'bulanan') period = document.getElementById('presensi-month').value;
+            else if (mode === 'semester') period = "Semester " + document.getElementById('presensi-semester-val').value + " " + document.getElementById('presensi-semester-year').value;
             else if (mode === 'tahunan') period = document.getElementById('presensi-year').value;
 
             let msg = `*LAPORAN PRESENSI SISWA*\nKelas: ${kls}\nPeriode: ${period}\n\n`;
@@ -1234,7 +1490,11 @@
                     const s = row.cells[3].innerText.trim();
                     const i = row.cells[4].innerText.trim();
                     const a = row.cells[5].innerText.trim();
-                    msg += `${index + 1}. ${nama} - H:${h}, S:${s}, I:${i}, A:${a}\n`;
+                    const ph = row.cells[6].innerText.trim();
+                    const ps = row.cells[7].innerText.trim();
+                    const pi = row.cells[8].innerText.trim();
+                    const pa = row.cells[9].innerText.trim();
+                    msg += `${index + 1}. ${nama} - H:${h} (${ph}), S:${s} (${ps}), I:${i} (${pi}), A:${a} (${pa})\n`;
                 }
             });
 
@@ -1251,6 +1511,7 @@
             let period = "";
             if (mode === 'mingguan') period = document.getElementById('presensi-week-start').value + " s/d " + document.getElementById('presensi-week-end').value;
             else if (mode === 'bulanan') period = document.getElementById('presensi-month').value;
+            else if (mode === 'semester') period = "Semester " + document.getElementById('presensi-semester-val').value + " " + document.getElementById('presensi-semester-year').value;
             else if (mode === 'tahunan') period = document.getElementById('presensi-year').value;
             else period = document.getElementById('presensi-date').value;
 
@@ -1654,20 +1915,45 @@
             dataSiswa.sort((a, b) => a.sis.nama.localeCompare(b.sis.nama));
 
             let index = 1;
+            let mapelTotals = {};
+            arrMapel.forEach(m => mapelTotals[m.id] = 0);
+            let grandTotal = 0;
+            let grandAvg = 0;
+
             dataSiswa.forEach(ds => {
                 b += `<tr class="border-b"><td class="px-2 py-2 text-center sticky-col border-r border-gray-200 bg-white">${index++}</td><td class="px-3 py-2 sticky-col font-bold border-r border-gray-200 bg-white truncate max-w-[120px] md:max-w-none" style="left:32px;">${ds.sis.nama}</td>`;
                 
                 // Print nilai per mapel
                 arrMapel.forEach(m => {
                     let akhir = ds.scores[m.id];
+                    mapelTotals[m.id] += (akhir || 0);
                     b += `<td class="text-center border-l">${akhir||'-'}</td>`;
                 }); 
+
+                grandTotal += ds.total;
+                grandAvg += ds.avg;
 
                 // Print Jumlah, Rata-rata, dan Rank
                 b += `<td class="text-center border-l font-bold text-blue-800 bg-blue-50">${ds.total}</td>
                       <td class="text-center border-l font-bold text-blue-800 bg-blue-50">${ds.avg}</td>
                       <td class="text-center border-l font-bold text-orange-800 bg-orange-50">${ds.rank}</td></tr>`;
             }); 
+            
+            // Tambahkan Baris Rata-rata Kelas di paling bawah
+            if (dataSiswa.length > 0) {
+                b += `<tr class="border-t-2 border-gray-400 bg-gray-100 font-bold">
+                        <td class="px-2 py-2 text-center sticky-col border-r border-gray-200 bg-gray-100" style="left:0;">-</td>
+                        <td class="px-3 py-2 sticky-col border-r border-gray-200 text-right bg-gray-100" style="left:32px;">Rata-rata Kelas</td>`;
+                arrMapel.forEach(m => {
+                    let avgMapel = Math.round(mapelTotals[m.id] / dataSiswa.length);
+                    b += `<td class="text-center border-l text-blue-800">${avgMapel}</td>`;
+                });
+                let avgGrandTotal = Math.round(grandTotal / dataSiswa.length);
+                let avgGrandAvg = Math.round(grandAvg / dataSiswa.length);
+                b += `<td class="text-center border-l text-blue-900 bg-blue-200">${avgGrandTotal}</td>
+                      <td class="text-center border-l text-blue-900 bg-blue-200">${avgGrandAvg}</td>
+                      <td class="text-center border-l bg-orange-100">-</td></tr>`;
+            }
             
             document.getElementById('ledger-tbody').innerHTML = b || `<tr><td colspan="${arrMapel.length + 5}" class="p-4 text-center">Kosong.</td></tr>`;
 
